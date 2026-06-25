@@ -81,6 +81,7 @@ def run_background_scraping_task(limit: int):
 
         import aggregation.discovery_stats as _ds
         _ds.invalidate_llm_caches()
+        _ds.set_data_mode("live")   # switch server to live mode so stats reflect the new scrape
         _update_progress("done", limit, limit, "Scraping and analysis complete! Dashboard is refreshing...", status="completed")
     except Exception as e:
         print(f"Failed to execute background scrape pipeline: {e}")
