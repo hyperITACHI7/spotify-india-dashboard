@@ -3,7 +3,7 @@ import axios from 'axios';
 import { GitBranch, ChevronDown, ChevronRight, Layers } from 'lucide-react';
 import API_URL from '../config';
 
-export default function TopicHierarchy({ matrix, dateRange, version, rating, platform, search }) {
+export default function TopicHierarchy({ matrix, dateRange, version, rating, platform, search, dataMode }) {
   const [expandedTopic, setExpandedTopic] = useState(null);
   const [subtopics,    setSubtopics]    = useState({});
   const [summary,      setSummary]      = useState({});
@@ -15,6 +15,7 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
     rating:     rating    || 'All',
     platform:   platform  || 'All',
     search:     search    || '',
+    data_mode:  dataMode,
   };
 
   const toggleTopic = (topicId) => {

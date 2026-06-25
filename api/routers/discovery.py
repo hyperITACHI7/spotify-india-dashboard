@@ -133,7 +133,8 @@ def get_stats(
     version: str = "All",
     rating: str = "All",
     platform: str = "All",
-    search: str = ""
+    search: str = "",
+    data_mode: Optional[str] = None
 ):
     """Returns overall KPIs, sentiment distribution, and trend over time."""
     data = discovery_stats.get_stats_aggregated(
@@ -141,7 +142,8 @@ def get_stats(
         version=version,
         rating=rating,
         platform=platform,
-        search=search
+        search=search,
+        mode=data_mode
     )
     return {"status": "success", "data": data}
 
@@ -151,7 +153,8 @@ def get_topics(
     version: str = "All",
     rating: str = "All",
     platform: str = "All",
-    search: str = ""
+    search: str = "",
+    data_mode: Optional[str] = None
 ):
     """Returns the Topic Sentiment Matrix (spreadsheet table rows)."""
     data = discovery_stats.get_topics_matrix(
@@ -159,7 +162,8 @@ def get_topics(
         version=version,
         rating=rating,
         platform=platform,
-        search=search
+        search=search,
+        mode=data_mode
     )
     return {"status": "success", "data": data}
 
@@ -170,7 +174,8 @@ def get_subtopics(
     version: str = "All",
     rating: str = "All",
     platform: str = "All",
-    search: str = ""
+    search: str = "",
+    data_mode: Optional[str] = None
 ):
     """Phase 2: Returns sub-topic drill-down stats for a given parent topic."""
     data = discovery_stats.get_subtopics_for_topic(
@@ -179,7 +184,8 @@ def get_subtopics(
         version=version,
         rating=rating,
         platform=platform,
-        search=search
+        search=search,
+        mode=data_mode
     )
     return {"status": "success", "data": data}
 
@@ -361,7 +367,8 @@ def get_keywords(
     version: str = "All",
     rating: str = "All",
     platform: str = "All",
-    search: str = ""
+    search: str = "",
+    data_mode: Optional[str] = None
 ):
     """Returns top keywords found in positive vs negative reviews."""
     data = discovery_stats.get_top_keywords(
@@ -369,7 +376,8 @@ def get_keywords(
         version=version,
         rating=rating,
         platform=platform,
-        search=search
+        search=search,
+        mode=data_mode
     )
     return {"status": "success", "data": data}
 
@@ -384,7 +392,8 @@ def get_reviews(
     issue_keyword: Optional[str] = None,
     keyword_sentiment: Optional[str] = None,
     page: int = 1,
-    page_size: int = 10
+    page_size: int = 10,
+    data_mode: Optional[str] = None
 ):
     """Returns a filtered, paginated list of reviews (for drill-down)."""
     data = discovery_stats.get_reviews_list(
@@ -397,7 +406,8 @@ def get_reviews(
         issue_keyword=issue_keyword,
         keyword_sentiment=keyword_sentiment,
         page=page,
-        page_size=page_size
+        page_size=page_size,
+        mode=data_mode
     )
     return {"status": "success", "data": data}
 
@@ -433,7 +443,8 @@ def synthesize_findings(
     version: str = Query("All"),
     rating: str = Query("All"),
     platform: str = Query("All"),
-    search: str = Query("")
+    search: str = Query(""),
+    data_mode: str = Query(None)
 ):
     """
     Calls the LLM to synthesize top discovery frustrations into a brief summary.
@@ -441,18 +452,19 @@ def synthesize_findings(
     Results are cached per (mode + filters) and cleared on mode switch or scrape.
     """
     import aggregation.discovery_stats as _ds
-    cache_key = (_ds.get_data_mode(), date_range, version, rating, platform, search)
+    effective_mode = data_mode if data_mode in ("snapshot", "live") else _ds.get_data_mode()
+    cache_key = (effective_mode, date_range, version, rating, platform, search)
     if cache_key in _ds._synthesis_cache:
         return {"summary": _ds._synthesis_cache[cache_key]}
 
     # Snapshot mode: return pre-computed synthesis, no LLM needed
-    snapshot_text = discovery_stats.get_synthesis_for_mode(date_range, version, rating, platform, search)
+    snapshot_text = discovery_stats.get_synthesis_for_mode(date_range, version, rating, platform, search, mode=data_mode)
     if snapshot_text is not None:
         _ds._synthesis_cache[cache_key] = snapshot_text
         return {"summary": snapshot_text}
 
     all_reviews = discovery_stats.filter_mock_reviews(
-        date_range, version, rating, platform, search, topic="search_discovery"
+        date_range, version, rating, platform, search, topic="search_discovery", mode=data_mode
     )
     negatives = [r for r in all_reviews if r.get("sentiment") == "NEGATIVE"]
     negatives.sort(key=lambda r: r.get("score", 0))   # most negative first
@@ -495,7 +507,8 @@ def get_alerts(
     version: str = "All",
     rating: str = "All",
     platform: str = "All",
-    search: str = ""
+    search: str = "",
+    data_mode: Optional[str] = None
 ):
     """Returns dynamic anomaly alerts based on the current filters."""
     data = discovery_stats.get_anomaly_alerts(
@@ -503,7 +516,8 @@ def get_alerts(
         version=version,
         rating=rating,
         platform=platform,
-        search=search
+        search=search,
+        mode=data_mode
     )
     return {"status": "success", "data": data}
 
@@ -517,7 +531,8 @@ def get_hypotheses(
     version: str = "All",
     rating: str = "All",
     platform: str = "All",
-    search: str = ""
+    search: str = "",
+    data_mode: Optional[str] = None
 ):
     """Phase 7: Returns AI-generated product hypotheses from review intelligence."""
     data = discovery_stats.get_hypotheses(
@@ -525,7 +540,8 @@ def get_hypotheses(
         version=version,
         rating=rating,
         platform=platform,
-        search=search
+        search=search,
+        mode=data_mode
     )
     return {"status": "success", "data": data}
 

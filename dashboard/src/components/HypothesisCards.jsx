@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Lightbulb, FlaskConical, BarChart3, TestTube } from 'lucide-react';
 import API_URL from '../config';
 
-export default function HypothesisCards({ dateRange, version, rating, platform, search, refreshTrigger }) {
+export default function HypothesisCards({ dateRange, version, rating, platform, search, dataMode, refreshTrigger }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -14,13 +14,14 @@ export default function HypothesisCards({ dateRange, version, rating, platform, 
       version: version || 'All',
       rating: rating || 'All',
       platform: platform || 'All',
-      search: search || ''
+      search: search || '',
+      data_mode: dataMode,
     };
     axios.get(`${API_URL}/api/discovery/hypotheses`, { params })
       .then(res => setData(res.data.data))
       .catch(err => console.error("Failed to fetch hypotheses:", err))
       .finally(() => setLoading(false));
-  }, [dateRange, version, rating, platform, search, refreshTrigger]);
+  }, [dateRange, version, rating, platform, search, dataMode, refreshTrigger]);
 
   if (loading) return <p className="loading">Generating hypotheses...</p>;
 

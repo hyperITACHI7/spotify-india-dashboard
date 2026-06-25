@@ -719,7 +719,7 @@ def has_live_data() -> bool:
     except Exception:
         return False
 
-def get_all_reviews() -> List[Dict]:
+def get_all_reviews(mode: str = None) -> List[Dict]:
     """
     Returns actual scraped reviews from Postgres if live data exists,
     otherwise returns the placeholder mockup dataset.
@@ -728,11 +728,12 @@ def get_all_reviews() -> List[Dict]:
     """
     if not has_live_data():
         return ALL_REVIEWS
-    
+
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        if _DATA_MODE == "snapshot":
+        effective_mode = mode if mode in ("snapshot", "live") else _DATA_MODE
+        if effective_mode == "snapshot":
             run_filter = "AND r.ingestion_run_id IN (SELECT id FROM ingestion_runs WHERE is_snapshot = TRUE)"
         else:
             # Live mode: ALL non-snapshot runs so multi-batch scrapes are fully visible
@@ -816,9 +817,9 @@ def get_all_reviews() -> List[Dict]:
 # =====================================================================
 # FILTERING ENGINE
 # =====================================================================
-def filter_mock_reviews(date_range: str, version: str, rating: str, platform: str, search: str, topic: str = None) -> List[Dict]:
+def filter_mock_reviews(date_range: str, version: str, rating: str, platform: str, search: str, topic: str = None, mode: str = None) -> List[Dict]:
     filtered = []
-    reviews_pool = get_all_reviews()
+    reviews_pool = get_all_reviews(mode=mode)
     
     # Calculate date limit
     limit_date = None
@@ -877,8 +878,8 @@ def filter_mock_reviews(date_range: str, version: str, rating: str, platform: st
 # =====================================================================
 # EXPORTED AGGREGATION HANDLERS
 # =====================================================================
-def get_stats_aggregated(date_range: str, version: str, rating: str, platform: str, search: str) -> Dict[str, Any]:
-    filtered = filter_mock_reviews(date_range, version, rating, platform, search)
+def get_stats_aggregated(date_range: str, version: str, rating: str, platform: str, search: str, mode: str = None) -> Dict[str, Any]:
+    filtered = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
     source = "database" if has_live_data() else "fallback_mock"
     
     total = len(filtered)
@@ -1109,9 +1110,10 @@ def _build_core_issue_summary(topic_reviews: List[Dict], topic_id: str) -> str:
     return f"Generally positive; minor complaints around {issue_a} and {issue_b}."
 
 
-def get_topics_matrix(date_range: str, version: str, rating: str, platform: str, search: str) -> List[Dict[str, Any]]:
+def get_topics_matrix(date_range: str, version: str, rating: str, platform: str, search: str, mode: str = None) -> List[Dict[str, Any]]:
     """Dynamically discovers topics from actual review data and returns top 10 + pinned search_discovery."""
-    filtered = filter_mock_reviews(date_range, version, rating, platform, search)
+    effective_mode = mode if mode in ("snapshot", "live") else _DATA_MODE
+    filtered = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
     
     # Step 1: Group reviews by topic
     topic_buckets: Dict[str, List[Dict]] = {}
@@ -1164,7 +1166,7 @@ def get_topics_matrix(date_range: str, version: str, rating: str, platform: str,
         # empty. Use the pre-computed subtopic table so the badge glows correctly.
         effective_subtopic_count = (
             len(_MOCK_SUBTOPIC_DATA.get(topic_id, []))
-            if _DATA_MODE == "snapshot"
+            if effective_mode == "snapshot"
             else len(sub_names)
         )
 
@@ -1198,7 +1200,7 @@ def get_topics_matrix(date_range: str, version: str, rating: str, platform: str,
             'trend': '0% change',
             'summary': 'No discovery-related reviews found for current filters.',
             'priority_index': 0,
-            'subtopic_count': len(_MOCK_SUBTOPIC_DATA.get(PINNED_TOPIC, [])) if _DATA_MODE == "snapshot" else 0,
+            'subtopic_count': len(_MOCK_SUBTOPIC_DATA.get(PINNED_TOPIC, [])) if effective_mode == "snapshot" else 0,
         })
     
     # Step 5: Limit to top 10 (but always keep the pinned topic)
@@ -1220,13 +1222,13 @@ def get_topics_matrix(date_range: str, version: str, rating: str, platform: str,
     
     return result
 
-def get_top_keywords(date_range: str, version: str, rating: str, platform: str, search: str) -> Dict[str, List[Dict[str, Any]]]:
+def get_top_keywords(date_range: str, version: str, rating: str, platform: str, search: str, mode: str = None) -> Dict[str, List[Dict[str, Any]]]:
     """
     Phase 5 (enhanced): Returns top keywords found in positive vs negative reviews.
     Now prefers issue-based buzzwords from Phase 1 'issues' field when available,
     falling back to raw-text word extraction for backward compatibility.
     """
-    filtered = filter_mock_reviews(date_range, version, rating, platform, search)
+    filtered = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
 
     # Phase 5: Check if reviews have issue data; if so, use issue-based buzzwords
     has_issues = any(r.get('issues') for r in filtered)
@@ -1292,8 +1294,8 @@ def get_top_keywords(date_range: str, version: str, rating: str, platform: str, 
         "negative": neg_sorted
     }
 
-def get_anomaly_alerts(date_range: str, version: str, rating: str, platform: str, search: str) -> List[Dict[str, str]]:
-    filtered = filter_mock_reviews(date_range, version, rating, platform, search)
+def get_anomaly_alerts(date_range: str, version: str, rating: str, platform: str, search: str, mode: str = None) -> List[Dict[str, str]]:
+    filtered = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
     alerts = []
     
     if not filtered:
@@ -1369,20 +1371,20 @@ def get_anomaly_alerts(date_range: str, version: str, rating: str, platform: str
 
 def get_reviews_list(date_range: str, version: str, rating: str, platform: str, search: str,
                      topic: str = None, issue_keyword: str = None, keyword_sentiment: str = None,
-                     page: int = 1, page_size: int = 10) -> Dict[str, Any]:
+                     page: int = 1, page_size: int = 10, mode: str = None) -> Dict[str, Any]:
     if issue_keyword:
         # Match reviews whose NLP-extracted issues list contains this keyword (case-insensitive).
         # Scope to the same sentiment pool used when computing the keyword count so the
         # displayed badge count matches exactly how many reviews appear in the list.
         ik = issue_keyword.lower().strip()
-        filtered = filter_mock_reviews(date_range, version, rating, platform, '', topic=topic)
+        filtered = filter_mock_reviews(date_range, version, rating, platform, '', topic=topic, mode=mode)
         filtered = [r for r in filtered
                     if any(ik == i.lower().strip() for i in (r.get('issues') or []))]
         if keyword_sentiment:
             ks = keyword_sentiment.upper()
             filtered = [r for r in filtered if r.get('sentiment', '').upper() == ks]
     else:
-        filtered = filter_mock_reviews(date_range, version, rating, platform, search, topic=topic)
+        filtered = filter_mock_reviews(date_range, version, rating, platform, search, topic=topic, mode=mode)
     filtered.sort(key=lambda x: x["date"], reverse=True)
     
     total = len(filtered)
@@ -1400,7 +1402,7 @@ def get_reviews_list(date_range: str, version: str, rating: str, platform: str, 
 # PHASE 2: SUB-TOPIC DRILL-DOWN AGGREGATION
 # =====================================================================
 def get_subtopics_for_topic(topic_id: str, date_range: str = "All", version: str = "All",
-                            rating: str = "All", platform: str = "All", search: str = "") -> Dict[str, Any]:
+                            rating: str = "All", platform: str = "All", search: str = "", mode: str = None) -> Dict[str, Any]:
     """
     Phase 2: Returns sub-topic drill-down stats for a given parent topic.
     Each sub-topic row includes review count, avg sentiment, and pct negative.
@@ -1410,7 +1412,8 @@ def get_subtopics_for_topic(topic_id: str, date_range: str = "All", version: str
     # DB snapshot rows have NULL sub_topics (seed SQL omits NLP enrichment);
     # runtime filtering is unreliable. Pre-computed data is the source of truth
     # for offline demo mode.
-    if _DATA_MODE == "snapshot":
+    effective_mode = mode if mode in ("snapshot", "live") else _DATA_MODE
+    if effective_mode == "snapshot":
         rows = _MOCK_SUBTOPIC_DATA.get(topic_id, [])
         return {
             'topic_id': topic_id,
@@ -1419,7 +1422,7 @@ def get_subtopics_for_topic(topic_id: str, date_range: str = "All", version: str
             'subtopics': rows,
         }
 
-    source_pool = filter_mock_reviews(date_range, version, rating, platform, search)
+    source_pool = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
 
     # Load taxonomy for valid_subs; fall back to _MOCK_SUBTOPICS when file unavailable.
     from nlp.topics.tagger import HierarchicalTopicTagger
@@ -1878,12 +1881,12 @@ def get_severity_breakdown(date_range: str = "All", version: str = "All",
 
 def get_priority_issues(date_range: str = "All", version: str = "All",
                        rating: str = "All", platform: str = "All",
-                       search: str = "", limit: int = 10) -> Dict[str, Any]:
+                       search: str = "", limit: int = 10, mode: str = None) -> Dict[str, Any]:
     """
     Phase 4: Returns top priority issues based on severity + volume + sentiment.
     Priority score = severity_weight * sentiment_amplifier * volume_multiplier.
     """
-    filtered = filter_mock_reviews(date_range, version, rating, platform, search)
+    filtered = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
 
     # Try live DB first
     if has_live_data():
@@ -2060,12 +2063,12 @@ def get_raw_csv_string(date_range: str = "All", version: str = "All", rating: st
 
 def get_issue_clusters(date_range: str = "All", version: str = "All",
                        rating: str = "All", platform: str = "All",
-                       search: str = "") -> Dict[str, Any]:
+                       search: str = "", mode: str = None) -> Dict[str, Any]:
     """
     Phase 6: Returns clustered issues with volume and sentiment distribution.
     Uses keyword-overlap agglomerative clustering on issue data.
     """
-    filtered = filter_mock_reviews(date_range, version, rating, platform, search)
+    filtered = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
 
     # Try live DB first
     if has_live_data():
@@ -2103,12 +2106,12 @@ def get_issue_clusters(date_range: str = "All", version: str = "All",
 
 def get_trends(date_range: str = "All", version: str = "All",
                rating: str = "All", platform: str = "All",
-               search: str = "", lookback_days: int = 7) -> Dict[str, Any]:
+               search: str = "", lookback_days: int = 7, mode: str = None) -> Dict[str, Any]:
     """
     Phase 6: Returns emerging/stable/declining issue trends.
     Compares current period vs previous period issue volumes.
     """
-    filtered = filter_mock_reviews(date_range, version, rating, platform, search)
+    filtered = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
 
     # Try live DB first
     if has_live_data():
@@ -2170,31 +2173,33 @@ def get_anomalies(date_range: str = "All", version: str = "All",
 
 def get_synthesis_for_mode(date_range: str = "All", version: str = "All",
                            rating: str = "All", platform: str = "All",
-                           search: str = "") -> str | None:
+                           search: str = "", mode: str = None) -> str | None:
     """
     Returns the pre-computed synthesis string when in snapshot mode, else None.
     The router calls this first; if None, it proceeds with the LLM call.
     """
-    if _DATA_MODE == "snapshot":
+    effective_mode = mode if mode in ("snapshot", "live") else _DATA_MODE
+    if effective_mode == "snapshot":
         return _MOCK_AI_SYNTHESIS
     return None
 
 
 def get_hypotheses(date_range: str = "All", version: str = "All",
                    rating: str = "All", platform: str = "All",
-                   search: str = "") -> Dict[str, Any]:
+                   search: str = "", mode: str = None) -> Dict[str, Any]:
     """
     Phase 7: Generates actionable product hypotheses from review intelligence.
     Feeds topic stats, priority issues, trends, and clusters to the HypothesisGenerator.
     Uses Groq LLM when available, falls back to rich mock hypotheses.
     Results are cached per (mode + filters) and cleared on mode switch or scrape.
     """
-    cache_key = (_DATA_MODE, date_range, version, rating, platform, search)
+    effective_mode = mode if mode in ("snapshot", "live") else _DATA_MODE
+    cache_key = (effective_mode, date_range, version, rating, platform, search)
     if cache_key in _hypotheses_cache:
         return _hypotheses_cache[cache_key]
 
     # Snapshot mode: return pre-computed hypotheses instantly, no LLM needed
-    if _DATA_MODE == "snapshot":
+    if effective_mode == "snapshot":
         result = {
             'hypotheses': _MOCK_HYPOTHESES,
             'intelligence_summary': {
@@ -2209,10 +2214,10 @@ def get_hypotheses(date_range: str = "All", version: str = "All",
         return result
 
     # Gather intelligence from existing Phase 4-6 functions
-    stats = get_stats_aggregated(date_range, version, rating, platform, search)
-    priority = get_priority_issues(date_range, version, rating, platform, search, limit=5)
-    trends_result = get_trends(date_range, version, rating, platform, search, lookback_days=7)
-    clusters_result = get_issue_clusters(date_range, version, rating, platform, search)
+    stats = get_stats_aggregated(date_range, version, rating, platform, search, mode=mode)
+    priority = get_priority_issues(date_range, version, rating, platform, search, limit=5, mode=mode)
+    trends_result = get_trends(date_range, version, rating, platform, search, lookback_days=7, mode=mode)
+    clusters_result = get_issue_clusters(date_range, version, rating, platform, search, mode=mode)
 
     top_issues = priority.get('issues', [])
     trends = trends_result.get('trends', [])

@@ -112,6 +112,7 @@ export default function App() {
       version,
       rating,
       platform,
+      data_mode: dataMode,
     };
 
     Promise.all([
@@ -130,7 +131,7 @@ export default function App() {
         console.error('Failed to load dashboard data:', err);
         setLoading(false);
       });
-  }, [modeReady, dateRange, version, rating, platform, refreshTrigger]);
+  }, [modeReady, dateRange, version, rating, platform, dataMode, refreshTrigger]);
 
   // ── Filter handlers ─────────────────────────────────────────────────────
   const handleApplyFilters = (newFilters) => {
@@ -234,7 +235,7 @@ export default function App() {
   };
 
   // ── Shared filter props passed to widgets that need them ────────────────
-  const filterProps = { dateRange, version, rating, platform };
+  const filterProps = { dateRange, version, rating, platform, dataMode };
 
   return (
     <div className="app-container">

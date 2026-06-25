@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Sparkles } from 'lucide-react';
 import API_URL from '../config';
 
-export default function AiSummaryCard({ dateRange, version, rating, platform, search, refreshTrigger }) {
+export default function AiSummaryCard({ dateRange, version, rating, platform, search, dataMode, refreshTrigger }) {
   const [summary, setSummary] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -12,13 +12,15 @@ export default function AiSummaryCard({ dateRange, version, rating, platform, se
     setLoading(true);
     setError('');
     setSummary('');
-    const params = new URLSearchParams({
+    const paramsObj = {
       date_range: dateRange || 'All',
       version: version || 'All',
       rating: rating || 'All',
       platform: platform || 'All',
-      search: search || ''
-    });
+      search: search || '',
+    };
+    if (dataMode) paramsObj.data_mode = dataMode;
+    const params = new URLSearchParams(paramsObj);
 
     axios.post(`${API_URL}/api/discovery/ai-synthesis?${params.toString()}`)
       .then(res => {
@@ -32,7 +34,7 @@ export default function AiSummaryCard({ dateRange, version, rating, platform, se
         setError('Could not reach the server. Make sure the backend is running.');
       })
       .finally(() => setLoading(false));
-  }, [dateRange, version, rating, platform, search, refreshTrigger]);
+  }, [dateRange, version, rating, platform, search, dataMode, refreshTrigger]);
 
   const isLimit = error.toLowerCase().includes('limit') || error.toLowerCase().includes('token');
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { AlertTriangle, Info, Bell, RefreshCw, Zap, TrendingUp } from 'lucide-react';
 import API_URL from '../config';
 
-export default function AlertsWidget({ dateRange, version, rating, platform, search, onRefresh, refreshTrigger }) {
+export default function AlertsWidget({ dateRange, version, rating, platform, search, dataMode, onRefresh, refreshTrigger }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [alerts,    setAlerts]    = useState([]);
   const [anomalies, setAnomalies] = useState([]);
@@ -15,6 +15,7 @@ export default function AlertsWidget({ dateRange, version, rating, platform, sea
     rating:     rating    || 'All',
     platform:   platform  || 'All',
     search:     search    || '',
+    data_mode:  dataMode,
   };
 
   const fetchAll = () => {

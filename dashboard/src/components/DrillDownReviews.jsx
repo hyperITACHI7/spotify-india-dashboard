@@ -8,6 +8,7 @@ export default function DrillDownReviews({
   version,
   rating,
   platform,
+  dataMode,
   selectedTopic,
   onSelectTopic,
   selectedTopicLabel,
@@ -51,6 +52,7 @@ export default function DrillDownReviews({
       topic: selectedTopic || 'All',
       page,
       page_size: pageSize,
+      data_mode: dataMode,
     };
     if (selectedKeyword) {
       params.issue_keyword = selectedKeyword;
@@ -68,7 +70,7 @@ export default function DrillDownReviews({
       console.error(err);
       setLoading(false);
     });
-  }, [dateRange, version, rating, platform, search, selectedTopic, selectedKeyword, selectedKeywordSentiment, page, refreshTrigger, modeReady]);
+  }, [dateRange, version, rating, platform, dataMode, search, selectedTopic, selectedKeyword, selectedKeywordSentiment, page, refreshTrigger, modeReady]);
 
   const handleExport = () => {
     const searchParam = selectedKeyword || search;
