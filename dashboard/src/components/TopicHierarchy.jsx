@@ -59,14 +59,13 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
           const subData     = subtopics[row.id];
           const summaryData = summary[row.id];
           const isLoadingSub = loadingSub[row.id];
-          // subtopic_count from the matrix tells us how many distinct sub-topics
-          // appeared in reviews for this topic — use it for the badge.
           const subCount = row.subtopic_count ?? 0;
 
           return (
             <div key={row.id} style={{ borderBottom: '1px solid var(--divider)' }}>
               {/* ── Topic header row ───────────────────────────────── */}
               <div
+                className="topic-row-header"
                 onClick={() => toggleTopic(row.id)}
                 style={{
                   display: 'flex',
@@ -84,23 +83,22 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
                   if (!isExpanded) e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
-                {/* Left: chevron + label + sub-topic count badge */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {/* Left: chevron + label + review count + sub-topic badge */}
+                <div className="topic-row-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
                   {isExpanded
-                    ? <ChevronDown size={16} color="var(--spotify-green)" />
-                    : <ChevronRight size={16} color="var(--text-subdued)" />}
+                    ? <ChevronDown size={16} color="var(--spotify-green)" style={{ flexShrink: 0 }} />
+                    : <ChevronRight size={16} color="var(--text-subdued)" style={{ flexShrink: 0 }} />}
 
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-base)' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-base)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {row.label}
                   </span>
 
-                  <span style={{ fontSize: '11px', color: 'var(--text-subdued)' }}>
-                    ({row.reviews_count} reviews)
+                  <span className="topic-review-count" style={{ fontSize: '11px', color: 'var(--text-subdued)', flexShrink: 0 }}>
+                    ({row.reviews_count})
                   </span>
 
-                  {/* Sub-topic count badge — green dot + number when there's data,
-                      grey when no data tagged yet but taxonomy defines some */}
                   <span
+                    className="topic-subtopic-badge"
                     title={subCount > 0
                       ? `${subCount} sub-topic${subCount !== 1 ? 's' : ''} found in reviews — click to explore`
                       : 'Sub-topics available — click to explore'}
@@ -112,6 +110,7 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
                       borderRadius: '500px',
                       fontSize: '11px',
                       fontWeight: '700',
+                      flexShrink: 0,
                       backgroundColor: subCount > 0
                         ? 'rgba(29,185,84,0.12)'
                         : 'rgba(255,255,255,0.05)',
@@ -121,16 +120,18 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
                     }}
                   >
                     <Layers size={10} />
-                    {subCount > 0 ? `${subCount} sub-topics` : 'sub-topics'}
+                    <span className="topic-subtopic-badge-text">
+                      {subCount > 0 ? `${subCount} sub-topics` : 'sub-topics'}
+                    </span>
                   </span>
                 </div>
 
-                {/* Right: quick sentiment read */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '12px', color: '#e74c3c', fontWeight: '600' }}>
+                {/* Right: quick sentiment read — fixed-width columns, always flush right */}
+                <div className="topic-row-right" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginLeft: '12px' }}>
+                  <span style={{ fontSize: '12px', color: '#e74c3c', fontWeight: '600', minWidth: '50px', textAlign: 'right' }}>
                     {row.pct_negative}% neg
                   </span>
-                  <span style={{ fontSize: '12px', color: 'var(--spotify-green)', fontWeight: '600' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--spotify-green)', fontWeight: '600', minWidth: '48px', textAlign: 'right' }}>
                     {row.pct_positive}% pos
                   </span>
                 </div>
@@ -138,7 +139,7 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
 
               {/* ── Expanded drill-down ────────────────────────────── */}
               {isExpanded && (
-                <div style={{ padding: '0 24px 16px 48px' }}>
+                <div className="topic-drilldown-body" style={{ padding: '0 24px 16px 48px' }}>
                   {/* AI summary banner */}
                   {summaryData && summaryData.summary && (
                     <div style={{
@@ -182,24 +183,26 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
                               opacity: hasReviews ? 1 : 0.45,
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <GitBranch size={12} color={hasReviews ? 'var(--spotify-green)' : 'var(--text-subdued)'} />
-                              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-base)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                              <GitBranch size={12} color={hasReviews ? 'var(--spotify-green)' : 'var(--text-subdued)'} style={{ flexShrink: 0 }} />
+                              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-base)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {sub.sub_topic || sub.label}
                               </span>
                               {!hasReviews && (
-                                <span style={{ fontSize: '10px', color: 'var(--text-subdued)', fontStyle: 'italic' }}>
+                                <span style={{ fontSize: '10px', color: 'var(--text-subdued)', fontStyle: 'italic', flexShrink: 0 }}>
                                   no data yet
                                 </span>
                               )}
                             </div>
 
                             {hasReviews && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '11px' }}>
-                                <span style={{ color: 'var(--text-subdued)' }}>{sub.reviews_count} reviews</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', flexShrink: 0, marginLeft: '8px' }}>
+                                <span className="subtopic-review-count" style={{ color: 'var(--text-subdued)' }}>{sub.reviews_count} reviews</span>
                                 <span style={{
                                   color: sub.pct_negative > 50 ? '#e74c3c' : sub.pct_negative > 25 ? '#f1c40f' : 'var(--spotify-green)',
                                   fontWeight: '600',
+                                  minWidth: '50px',
+                                  textAlign: 'right',
                                 }}>
                                   {sub.pct_negative}% neg
                                 </span>

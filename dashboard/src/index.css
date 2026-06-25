@@ -435,6 +435,40 @@ body {
     overflow-y: auto;
   }
 
+  /* ── Topic Hierarchy row: mobile layout fixes ── */
+  .topic-row-header {
+    padding: 10px 14px !important;
+  }
+  .topic-row-left {
+    gap: 6px !important;
+  }
+  /* Hide review count — saves room for name + badge icon */
+  .topic-review-count {
+    display: none;
+  }
+  /* Show only the icon in the subtopic badge, not the text */
+  .topic-subtopic-badge-text {
+    display: none;
+  }
+  .topic-subtopic-badge {
+    padding: 3px 6px !important;
+  }
+  /* Sentiment numbers: tighter gap, slightly smaller text */
+  .topic-row-right {
+    gap: 6px !important;
+  }
+  .topic-row-right span {
+    font-size: 11px !important;
+    min-width: 44px !important;
+  }
+  /* Drill-down panel: reduce left indent on mobile */
+  .topic-drilldown-body {
+    padding: 0 14px 12px 28px !important;
+  }
+  .subtopic-review-count {
+    display: none;
+  }
+
   /* ── Bottom nav ── */
   .mobile-bottom-nav {
     display: flex;
