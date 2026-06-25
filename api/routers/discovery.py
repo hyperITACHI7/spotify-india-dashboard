@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Response, Query, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
-import concurrent.futures
 
 from aggregation import discovery_stats
 from core import llm as _llm
@@ -29,10 +28,11 @@ def _update_progress(stage: str, current: int = 0, total: int = 0, message: str 
 
 
 def run_background_scraping_task(limit: int):
-    """Asynchronous pipeline task that fetches real reviews and processes NLP sentiment/topics.
-    Updates _scrape_progress at each stage so the frontend can poll for progress.
-    Progress mapping: 0-30% = Play Store fetch, 30-50% = App Store fetch,
-    50-80% = VADER enrichment, 80-100% = LLM deep analysis."""
+    """Fetches reviews + runs VADER, marks scrape complete so the dashboard shows data
+    immediately, then launches NLP topic analysis in a background thread so the topic
+    widgets can display a real live progress bar while it runs.
+    Progress mapping: 0-80% = ingestion + VADER, 80% = scrape done (dashboard unlocks),
+    NLP progress tracked separately via /nlp-progress endpoint."""
     try:
         print(f"Background scrape task triggered with limit {limit}...")
 
@@ -40,54 +40,34 @@ def run_background_scraping_task(limit: int):
             _update_progress("ingestion", current, total, msg)
 
         ingest_run(limit_override=limit, progress_callback=ingestion_progress)
-        # At this point, reviews are in DB with VADER enrichment — dashboard can show real data
-        print("Ingestion done with VADER enrichment, triggering LLM NLP pipeline...")
-
-        # LLM enrichment is optional — if it fails, VADER data is already in the DB.
-        # We give it 3 minutes max; token limits should hit before then and
-        # the pipeline handles them gracefully. The timeout prevents the progress bar
-        # from freezing if the provider hangs instead of returning an error.
-        try:
-            nlp_base = int(limit * 0.8)   # progress bar starts at 80%
-            nlp_span = limit - nlp_base   # remaining 20% allocated to NLP
-
-            def _nlp_progress(current, total):
-                discovery_stats.set_nlp_progress(current, total, "running")
-                if total > 0:
-                    frac = current / total
-                    val  = nlp_base + int(nlp_span * frac)
-                    _update_progress(
-                        "nlp", val, limit,
-                        f"Deep AI analysis: {current}/{total} reviews processed..."
-                    )
-
-            discovery_stats.set_nlp_progress(0, 0, "running")
-            _update_progress("nlp", nlp_base, limit,
-                             "Deep AI analysis started (issue extraction, topic tagging)...")
-
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as _ex:
-                _future = _ex.submit(run_nlp_pipeline, limit=limit * 2,
-                                     progress_callback=_nlp_progress)
-                _future.result(timeout=180)   # 3-minute hard cap
-
-            discovery_stats.set_nlp_progress(0, 0, "done")
-            _update_progress("nlp", limit, limit, "AI analysis complete.")
-            print("LLM NLP processing completed.")
-        except concurrent.futures.TimeoutError:
-            print("NLP pipeline timed out after 3 minutes — VADER data is still in the DB.")
-            discovery_stats.set_nlp_progress(0, 0, "done")
-            _update_progress("nlp", limit, limit,
-                             "AI analysis timed out — basic sentiment data is available.")
-        except Exception as nlp_err:
-            # Non-fatal: VADER data is already in the DB, dashboard will show real reviews
-            print(f"LLM NLP enrichment failed (non-fatal, VADER data still available): {nlp_err}")
-            discovery_stats.set_nlp_progress(0, 0, "done")
-            _update_progress("nlp", limit, limit, "Deep analysis skipped — basic data available.")
+        print("Ingestion + VADER done. Unlocking dashboard and launching NLP in background...")
 
         import aggregation.discovery_stats as _ds
         _ds.invalidate_llm_caches()
-        _ds.set_data_mode("live")   # switch server to live mode so stats reflect the new scrape
-        _update_progress("done", limit, limit, "Scraping and analysis complete! Dashboard is refreshing...", status="completed")
+        _ds.set_data_mode("live")
+        _update_progress("done", limit, limit,
+                         "Reviews scraped! Topic analysis is running in the background...",
+                         status="completed")
+
+        # NLP runs in a background thread so the scrape progress bar can close and
+        # the dashboard auto-refreshes immediately. Topic widgets show a live progress
+        # bar via /nlp-progress while NLP is still processing.
+        def _nlp_thread():
+            try:
+                def _cb(current, total):
+                    discovery_stats.set_nlp_progress(current, total, "running")
+                discovery_stats.set_nlp_progress(0, 0, "running")
+                run_nlp_pipeline(limit=limit * 2, progress_callback=_cb)
+                discovery_stats.set_nlp_progress(0, 0, "done")
+                _ds.invalidate_llm_caches()
+                print("Background NLP complete.")
+            except Exception as e:
+                print(f"Background NLP failed (non-fatal, VADER data still in DB): {e}")
+                discovery_stats.set_nlp_progress(0, 0, "done")
+
+        import threading
+        threading.Thread(target=_nlp_thread, daemon=True).start()
+
     except Exception as e:
         print(f"Failed to execute background scrape pipeline: {e}")
         _update_progress("error", 0, limit, f"Scrape failed: {str(e)}", status="error")
