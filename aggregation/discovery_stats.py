@@ -13,8 +13,7 @@ from datetime import datetime, timedelta
 import re
 from typing import Dict, List, Any
 import hashlib
-import groq
-from core.secrets import groq_llm
+from core.llm import get_client as _get_llm_client, model as _llm_model
 
 # Attempt to import DB connection
 try:
@@ -153,10 +152,10 @@ def _auto_summarize_topic(reviews: List[Dict], topic_id: str) -> str:
     )
 
     try:
-        client = groq.Groq(api_key=groq_llm.api_key)
+        client = _get_llm_client()
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
+            model=_llm_model(),
             max_tokens=80,
             temperature=0.3
         )
