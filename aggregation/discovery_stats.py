@@ -2226,21 +2226,21 @@ def get_hypotheses(date_range: str = "All", version: str = "All",
         cache_key=cache_key,
     )
 
-    # Check for error sentinel — fall back to pre-computed mock hypotheses so the
-    # feature always shows something useful when the LLM is quota-limited or unavailable.
+    # LLM error sentinel — surface the real error in live mode, don't substitute mock data.
     if hypotheses and hypotheses[0].get('_source') == 'error':
-        result = {
-            'hypotheses': _MOCK_HYPOTHESES,
+        err_msg = hypotheses[0].get('_error', 'LLM unavailable.')
+        # Don't cache errors so the next request retries
+        return {
+            'hypotheses': [],
+            'error': err_msg,
             'intelligence_summary': {
                 'total_reviews': stats.get('total_reviews', 0),
                 'priority_issues_count': len(top_issues),
                 'trends_tracked': trends_result.get('total_issues_tracked', 0),
                 'clusters_found': len(clusters),
             },
-            'source': 'precomputed_fallback',
+            'source': 'error',
         }
-        _hypotheses_cache[cache_key] = result
-        return result
 
     for h in hypotheses:
         h.pop('_source', None)

@@ -472,12 +472,18 @@ Reviews:
         summary = chat_completion.choices[0].message.content
         _ds._synthesis_cache[cache_key] = summary
         return {"summary": summary}
-    except Exception:
-        # LLM unavailable — serve the pre-computed mock synthesis so the
-        # feature always shows something useful regardless of quota/key state.
-        fallback = discovery_stats._MOCK_AI_SYNTHESIS
-        _ds._synthesis_cache[cache_key] = fallback
-        return {"summary": fallback}
+    except Exception as e:
+        err = str(e)
+        if "rate_limit" in err.lower() or "429" in err:
+            msg = "Daily LLM rate limit reached. AI Synthesis will be available once the quota resets."
+        elif "api_key" in err.lower() or "authentication" in err.lower() or "401" in err:
+            msg = "LLM API key invalid or missing. Check your GROQ_API_KEY in the environment settings."
+        elif "connection" in err.lower() or "timeout" in err.lower():
+            msg = "LLM provider unreachable. Check your network connection."
+        else:
+            msg = f"LLM error: {err[:200]}"
+        # Don't cache errors — next request should retry
+        return {"summary": "", "error": msg}
 
 @router.get("/alerts")
 def get_alerts(
