@@ -115,22 +115,24 @@ export default function App() {
       data_mode: dataMode,
     };
 
-    Promise.all([
+    // allSettled so a slow /topics call (LLM per-topic) never kills the stats fetch.
+    Promise.allSettled([
       axios.get(`${API_URL}/api/discovery/stats`,    { params }),
       axios.get(`${API_URL}/api/discovery/topics`,   { params }),
       axios.get(`${API_URL}/api/discovery/keywords`, { params }),
-    ])
-      .then(([statsRes, topicsRes, keywordsRes]) => {
-        setStats(statsRes.data.data);
-        setMatrix(topicsRes.data.data);
-        setKeywords(keywordsRes.data.data);
-        setSourceType(statsRes.data.data.source_type || 'fallback_mock');
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to load dashboard data:', err);
-        setLoading(false);
-      });
+    ]).then(([statsResult, topicsResult, keywordsResult]) => {
+      if (statsResult.status === 'fulfilled') {
+        setStats(statsResult.value.data.data);
+        setSourceType(statsResult.value.data.data.source_type || 'fallback_mock');
+      }
+      if (topicsResult.status === 'fulfilled') {
+        setMatrix(topicsResult.value.data.data);
+      }
+      if (keywordsResult.status === 'fulfilled') {
+        setKeywords(keywordsResult.value.data.data);
+      }
+      setLoading(false);
+    });
   }, [modeReady, dateRange, version, rating, platform, dataMode, refreshTrigger]);
 
   // ── Filter handlers ─────────────────────────────────────────────────────

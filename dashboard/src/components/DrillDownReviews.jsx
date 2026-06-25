@@ -37,8 +37,8 @@ export default function DrillDownReviews({
   }, [dateRange, version, rating, platform, search, selectedTopic, selectedKeyword, refreshTrigger]);
 
   useEffect(() => {
-    // Wait for mode to be confirmed server-side before fetching
-    if (modeReady === false) return;
+    // Wait for mode to be confirmed server-side before fetching (null = not yet started)
+    if (!modeReady) return;
 
     setLoading(true);
 
