@@ -997,6 +997,20 @@ _PRAISE_ISSUE_TERMS = [
     "amazing", "perfect", "praise", "worth the money", "works well",
 ]
 
+# Generic cross-topic labels that the NLP pipeline sometimes emits.
+# These carry no topic-specific signal and must be filtered out before
+# building a Core Issue Summary, otherwise every topic shows the same text.
+_GENERIC_ISSUE_LABELS = frozenset({
+    "needs improvement", "poor experience", "general issue", "could be better",
+    "not good", "bad experience", "disappointing", "improvement needed",
+    "needs to improve", "very poor", "very bad", "not working properly",
+    "poor quality", "bad quality", "not working", "doesn't work",
+    "not great", "unsatisfied", "not happy", "mediocre experience",
+    "average experience", "terrible experience", "horrible experience",
+    "awful experience", "worst experience", "needs work",
+    "poor performance", "bad performance", "general complaint",
+})
+
 
 def _contains_topic_term(text: str, term: str) -> bool:
     if " " in term:
@@ -1051,10 +1065,56 @@ def _collect_topic_complaint_issues(topic_reviews: List[Dict], topic_id: str) ->
             issue_lower = issue_text.lower()
             if any(term in issue_lower for term in _PRAISE_ISSUE_TERMS):
                 continue
+            if issue_lower in _GENERIC_ISSUE_LABELS:
+                continue
             if topic_terms and not any(_contains_topic_term(issue_lower, term) for term in topic_terms):
                 continue
             issue_counts[issue_text] = issue_counts.get(issue_text, 0) + 1
     return issue_counts, complaint_reviews
+
+
+_TEXT_SUMMARY_STOP = frozenset({
+    "the","and","a","an","of","to","is","in","it","i","this","my","app","for",
+    "with","on","are","but","so","have","not","too","they","was","be","as","at",
+    "by","from","or","if","its","that","into","will","can","just","also","now",
+    "any","all","about","has","been","would","could","should","does","did","do",
+    "get","got","like","very","more","when","which","who","what","how","had",
+    "she","he","we","you","your","our","us","me","up","out","no","yes","only",
+    "even","after","before","use","used","make","made","way","well","want",
+    "need","really","still","here","much","same","some","time","new","good",
+    "great","love","nice","bad","poor","okay","please","thank","try","again",
+    "never","always","back","know","think","feel","take","see","come","spotify",
+    "music","song","songs","play","playing","player","their","them","then",
+    "than","over","every","using","used","been","there","been","went","come",
+    "went","keep","kept","find","found","since","while","though","already",
+    "first","last","next","long","little","bit","lot","many","most","other",
+    "each","few","high","low","just","even","only","also","until","always",
+    "never","still","very","much","quite","rather","pretty","fairly","really",
+    "truly","seriously","absolutely","definitely","completely","totally","fully",
+    "especially","particularly","specifically","basically","simply","literally",
+})
+
+
+def _build_text_fallback_summary(complaint_reviews: List[Dict], topic_id: str) -> str:
+    """Mine review text for topic-relevant terms when NLP issue labels were all generic."""
+    topic_terms = _TOPIC_ISSUE_TERMS.get(topic_id, [])
+    word_hits: Counter = Counter()
+    for r in complaint_reviews:
+        text = (r.get('text') or '').lower()
+        words = re.findall(r'\b[a-z]{4,}\b', text)
+        for w in words:
+            if w in _TEXT_SUMMARY_STOP:
+                continue
+            weight = 2 if topic_terms and any(t in w or w in t for t in topic_terms) else 1
+            word_hits[w] += weight
+
+    top = [w for w, _ in word_hits.most_common(10) if len(w) >= 4][:3]
+    count = len(complaint_reviews)
+    if not top:
+        return f"{count} negative reviews with no single dominant complaint identified."
+    if len(top) >= 2:
+        return f"Recurring complaints about {top[0]} and {top[1]} across {count} negative reviews."
+    return f"Recurring issue with {top[0]} mentioned across {count} negative reviews."
 
 
 def _build_core_issue_summary(topic_reviews: List[Dict], topic_id: str) -> str:
@@ -1074,10 +1134,8 @@ def _build_core_issue_summary(topic_reviews: List[Dict], topic_id: str) -> str:
     if not issue_counts:
         if pos_pct > 60 and neg_pct < 20:
             return f"Predominantly positive with no recurring complaint pattern ({pos_pct}% satisfied)."
-        if neg_pct > 40:
-            label = _get_topic_label(topic_id)
-            return f"{neg_pct}% negative sentiment with no single dominant complaint identified."
-        return "Mixed feedback without a consistent complaint pattern."
+        # NLP issue labels were absent or all generic — mine review text directly
+        return _build_text_fallback_summary(complaint_reviews, topic_id)
 
     sorted_issues = sorted(issue_counts.items(), key=lambda item: item[1], reverse=True)
     top_issues = [issue for issue, _ in sorted_issues[:3]]
@@ -1137,16 +1195,19 @@ def get_topics_matrix(date_range: str, version: str, rating: str, platform: str,
         pct_pos = round((pos_cnt / count) * 100)
         pct_neg = round((neg_cnt / count) * 100)
         
-        # Priority: Phase 3 DB summary (if high quality) → live LLM → rule-based
-        cached_summary = _get_phase3_summary(topic_id)
-        if (cached_summary
-                and not _is_contradictory_issue_summary(cached_summary)
-                and not _is_low_quality_summary(cached_summary)):
-            summary = cached_summary
+        # Snapshot mode: use pre-computed per-topic summaries directly — no LLM, no quality checks
+        if effective_mode == "snapshot" and topic_id in _MOCK_TOPIC_SUMMARIES:
+            summary = _MOCK_TOPIC_SUMMARIES[topic_id]
         else:
-            # Try live LLM call (returns None on failure or no negatives)
-            llm_summary = _auto_summarize_topic(topic_reviews, topic_id)
-            summary = llm_summary if llm_summary else _build_core_issue_summary(topic_reviews, topic_id)
+            # Live mode: DB summary (quality-gated) → live LLM → rule-based text fallback
+            cached_summary = _get_phase3_summary(topic_id)
+            if (cached_summary
+                    and not _is_contradictory_issue_summary(cached_summary)
+                    and not _is_low_quality_summary(cached_summary)):
+                summary = cached_summary
+            else:
+                llm_summary = _auto_summarize_topic(topic_reviews, topic_id)
+                summary = llm_summary if llm_summary else _build_core_issue_summary(topic_reviews, topic_id)
 
         # Count distinct sub-topics that appear in reviews for this topic,
         # restricted to sub-topics actually defined for this topic in the taxonomy.
