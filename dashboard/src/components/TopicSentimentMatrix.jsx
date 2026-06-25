@@ -59,13 +59,13 @@ export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTo
         <table className="table-container matrix-table" style={{ width: '100%', tableLayout: 'fixed' }}>
           <thead>
             <tr>
-              <th style={{ paddingLeft: '24px', width: '16%' }}>Topic</th>
-              <th style={{ textAlign: 'center', width: '60px'  }}>Reviews</th>
-              <th style={{ textAlign: 'center', width: '80px' }}>Sentiment</th>
-              <th style={{ textAlign: 'center', width: '60px' }}>% Pos</th>
-              <th style={{ textAlign: 'center', width: '60px' }}>% Neg</th>
-              <th style={{ textAlign: 'center', width: '76px' }}>Trend</th>
-              <th style={{ textAlign: 'center', width: '82px' }}>Priority</th>
+              <th style={{ paddingLeft: '24px', width: '15%' }}>Topic</th>
+              <th style={{ textAlign: 'center', width: '80px',  padding: '8px 6px' }}>Reviews</th>
+              <th style={{ textAlign: 'center', width: '96px',  padding: '8px 6px' }}>Sentiment</th>
+              <th style={{ textAlign: 'center', width: '68px',  padding: '8px 6px' }}>% Pos</th>
+              <th style={{ textAlign: 'center', width: '68px',  padding: '8px 6px' }}>% Neg</th>
+              <th style={{ textAlign: 'center', width: '84px',  padding: '8px 6px' }}>Trend</th>
+              <th style={{ textAlign: 'center', width: '90px',  padding: '8px 8px' }}>Priority</th>
               <th className="matrix-col-summary" style={{ paddingRight: '24px' }}>Core Issue Summary</th>
             </tr>
           </thead>
@@ -108,23 +108,23 @@ export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTo
                     </span>
                   </td>
 
-                  <td style={{ textAlign: 'center', fontWeight: '500' }}>
+                  <td style={{ textAlign: 'center', fontWeight: '500', padding: '16px 6px' }}>
                     {row.reviews_count}
                   </td>
 
-                  <td style={{ textAlign: 'center', color: getSentimentColor(row.avg_sentiment), fontWeight: '700' }}>
+                  <td style={{ textAlign: 'center', color: getSentimentColor(row.avg_sentiment), fontWeight: '700', padding: '16px 6px' }}>
                     {row.avg_sentiment > 0 ? `+${row.avg_sentiment.toFixed(2)}` : row.avg_sentiment.toFixed(2)}
                   </td>
 
-                  <td style={{ textAlign: 'center', color: 'var(--spotify-green)', fontWeight: '700' }}>
+                  <td style={{ textAlign: 'center', color: 'var(--spotify-green)', fontWeight: '700', padding: '16px 6px' }}>
                     {row.pct_positive}%
                   </td>
 
-                  <td style={{ textAlign: 'center', color: '#e74c3c', fontWeight: '700' }}>
+                  <td style={{ textAlign: 'center', color: '#e74c3c', fontWeight: '700', padding: '16px 6px' }}>
                     {row.pct_negative}%
                   </td>
 
-                  <td style={{ textAlign: 'center', color: getTrendColor(row.trend), fontWeight: '700' }}>
+                  <td style={{ textAlign: 'center', color: getTrendColor(row.trend), fontWeight: '700', padding: '16px 6px' }}>
                     {row.trend}
                   </td>
 
