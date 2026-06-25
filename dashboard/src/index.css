@@ -419,9 +419,14 @@ body {
     scroll-snap-align: start;
   }
 
-  /* ── Topic Sentiment Matrix: hide summary column ── */
+  /* ── Topic Sentiment Matrix: hide summary, force scroll ── */
   .matrix-col-summary {
     display: none;
+  }
+  .matrix-table {
+    table-layout: auto !important;
+    min-width: 480px;
+    width: auto !important;
   }
 
   /* ── Topic Hierarchy: scrollable content area ── */

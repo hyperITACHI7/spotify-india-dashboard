@@ -56,7 +56,7 @@ export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTo
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-        <table className="table-container" style={{ width: '100%', tableLayout: 'fixed' }}>
+        <table className="table-container matrix-table" style={{ width: '100%', tableLayout: 'fixed' }}>
           <thead>
             <tr>
               <th style={{ paddingLeft: '24px', width: '16%' }}>Topic</th>

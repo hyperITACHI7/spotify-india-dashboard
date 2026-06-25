@@ -601,6 +601,7 @@ export default function App() {
                 selectedTopicLabel={getSelectedTopicLabel()}
                 selectedKeyword={selectedKeyword}
                 refreshTrigger={refreshTrigger}
+                modeReady={modeReady}
               />
             </div>
 
