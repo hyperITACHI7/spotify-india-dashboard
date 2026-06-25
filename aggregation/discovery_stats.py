@@ -209,7 +209,7 @@ def _get_phase3_summary(topic_id: str) -> str | None:
 
 def _compute_trend(reviews: List[Dict]) -> str:
     """Computes a real trend by comparing recent-week vs prior-week negative %."""
-    today = datetime(2026, 6, 21)
+    today = datetime.now()
     recent_start = today - timedelta(days=7)
     prior_start = today - timedelta(days=14)
     
