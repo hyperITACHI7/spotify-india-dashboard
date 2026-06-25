@@ -64,7 +64,13 @@ export default function AiSummaryCard({ dateRange, version, rating, platform, se
       ) : (
         <div style={{ fontSize: '14px', lineHeight: '1.8', color: 'var(--text-subdued)' }}>
           {summary.split('\n').map((line, i) => (
-            <p key={i} style={{ marginBottom: '8px', color: line.trim() ? 'var(--text-base)' : 'transparent' }}>{line}</p>
+            <p key={i} style={{ marginBottom: '8px', color: line.trim() ? 'var(--text-base)' : 'transparent' }}>
+              {line.split(/(\*\*[^*]+\*\*)/).map((part, j) =>
+                part.startsWith('**') && part.endsWith('**')
+                  ? <strong key={j}>{part.slice(2, -2)}</strong>
+                  : part
+              )}
+            </p>
           ))}
         </div>
       )}
