@@ -52,6 +52,7 @@ def run_background_scraping_task(limit: int):
             nlp_span = limit - nlp_base   # remaining 20% allocated to NLP
 
             def _nlp_progress(current, total):
+                discovery_stats.set_nlp_progress(current, total, "running")
                 if total > 0:
                     frac = current / total
                     val  = nlp_base + int(nlp_span * frac)
@@ -60,6 +61,7 @@ def run_background_scraping_task(limit: int):
                         f"Deep AI analysis: {current}/{total} reviews processed..."
                     )
 
+            discovery_stats.set_nlp_progress(0, 0, "running")
             _update_progress("nlp", nlp_base, limit,
                              "Deep AI analysis started (issue extraction, topic tagging)...")
 
@@ -68,15 +70,18 @@ def run_background_scraping_task(limit: int):
                                      progress_callback=_nlp_progress)
                 _future.result(timeout=180)   # 3-minute hard cap
 
+            discovery_stats.set_nlp_progress(0, 0, "done")
             _update_progress("nlp", limit, limit, "AI analysis complete.")
             print("LLM NLP processing completed.")
         except concurrent.futures.TimeoutError:
             print("NLP pipeline timed out after 3 minutes — VADER data is still in the DB.")
+            discovery_stats.set_nlp_progress(0, 0, "done")
             _update_progress("nlp", limit, limit,
                              "AI analysis timed out — basic sentiment data is available.")
         except Exception as nlp_err:
             # Non-fatal: VADER data is already in the DB, dashboard will show real reviews
             print(f"LLM NLP enrichment failed (non-fatal, VADER data still available): {nlp_err}")
+            discovery_stats.set_nlp_progress(0, 0, "done")
             _update_progress("nlp", limit, limit, "Deep analysis skipped — basic data available.")
 
         import aggregation.discovery_stats as _ds

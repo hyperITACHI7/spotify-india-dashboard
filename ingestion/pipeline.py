@@ -1,6 +1,5 @@
 import yaml
 import hashlib
-import threading
 from datetime import datetime, timezone
 import pandas as pd
 from typing import List, Optional, Callable
@@ -8,30 +7,6 @@ from typing import List, Optional, Callable
 from ingestion.collectors import playstore_collector, appstore_collector
 from ingestion.collectors.base import Review
 from core.db import get_connection
-
-
-def _launch_nlp_background() -> None:
-    """Run rule-based NLP topic assignment in a background thread after scraping."""
-    def _job():
-        try:
-            from nlp.pipeline import run_nlp_pipeline
-            from aggregation.discovery_stats import set_nlp_progress
-
-            def _cb(processed: int, total: int):
-                set_nlp_progress(processed, total, "running")
-
-            set_nlp_progress(0, 0, "running")
-            run_nlp_pipeline(skip_llm=False, limit=500, progress_callback=_cb)
-            set_nlp_progress(0, 0, "done")
-        except Exception as e:
-            print(f"Background NLP job failed: {e}")
-            try:
-                from aggregation.discovery_stats import set_nlp_progress
-                set_nlp_progress(0, 0, "idle")
-            except Exception:
-                pass
-
-    threading.Thread(target=_job, daemon=True).start()
 
 def load_settings():
     with open('config/settings.yaml', 'r') as f:
@@ -275,8 +250,6 @@ def ingest_run(limit_override: int = None, region_override: str = None, dry_run:
     _progress(int(limit * 0.8), limit, f"Ingestion done: {inserted_count} reviews stored and analyzed.")
     print(f"Ingestion run complete! Inserted {inserted_count} new reviews.")
 
-    if inserted_count > 0 and not dry_run:
-        _launch_nlp_background()
 
 if __name__ == "__main__":
     # Test script run

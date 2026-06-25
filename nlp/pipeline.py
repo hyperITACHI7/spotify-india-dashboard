@@ -552,17 +552,21 @@ def run_nlp_pipeline(dry_run: bool = False, limit: int = 500, skip_llm: bool = F
                     """, (review_id, tid, 0.9, 'llm', matched_sub))
                 
             success_count += 1
-            
+
             if (i + 1) % 5 == 0:
                 subs = llm_result.get('sub_topics') or []
                 print(f"  [{i+1}/{total_unprocessed}] LLM sub_topics: {subs or 'none'}")
+
+            # Commit every 10 reviews so partial results are saved even on timeout/crash
+            if (i + 1) % 10 == 0:
+                conn.commit()
 
         except Exception as e:
             print(f"Failed to process review {review_id}: {e}")
             conn.rollback()
             continue
 
-    conn.commit()
+    conn.commit()  # final commit for any remainder
     
     # Phase 3: Generate topic summaries (works without LLM via rule-based fallback)
     print("\n--- Phase 3: Generating topic summaries ---")
