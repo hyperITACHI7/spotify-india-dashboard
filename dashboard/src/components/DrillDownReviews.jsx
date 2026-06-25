@@ -14,6 +14,7 @@ export default function DrillDownReviews({
   selectedTopicLabel,
   selectedKeyword,
   selectedKeywordSentiment,
+  onClearKeyword,
   refreshTrigger,
   modeReady,
 }) {
@@ -113,35 +114,59 @@ export default function DrillDownReviews({
             </button>
           </div>
         </div>
-        {/* Search input — scoped to this review list only */}
-        <div style={{ position: 'relative', maxWidth: '360px' }}>
-          <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subdued)', pointerEvents: 'none' }} />
-          <input
-            type="text"
-            value={localSearch}
-            onChange={(e) => handleSearchInput(e.target.value)}
-            placeholder="Search reviews by keyword..."
-            className="filter-search-input"
-            style={{ paddingLeft: '32px' }}
-          />
-          {localSearch && (
+        {/* Search + active filter chips row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', maxWidth: '360px', flex: '1 1 200px' }}>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subdued)', pointerEvents: 'none' }} />
+            <input
+              type="text"
+              value={localSearch}
+              onChange={(e) => handleSearchInput(e.target.value)}
+              placeholder="Search reviews by keyword..."
+              className="filter-search-input"
+              style={{ paddingLeft: '32px' }}
+            />
+            {localSearch && (
+              <button
+                onClick={() => { setLocalSearch(''); setSearch(''); }}
+                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-subdued)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Active filter chips */}
+          {selectedTopic && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700', padding: '4px 8px 4px 10px', borderRadius: '500px', backgroundColor: 'rgba(29,185,84,0.1)', border: '1px solid rgba(29,185,84,0.25)', color: 'var(--spotify-green)', flexShrink: 0 }}>
+              {selectedTopicLabel}
+              <button onClick={() => onSelectTopic(null)} style={{ background: 'none', border: 'none', color: 'var(--spotify-green)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0, opacity: 0.7 }}
+                onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.7'}>
+                <X size={11} />
+              </button>
+            </span>
+          )}
+          {selectedKeyword && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700', padding: '4px 8px 4px 10px', borderRadius: '500px', backgroundColor: 'rgba(241,196,15,0.1)', border: '1px solid rgba(241,196,15,0.25)', color: '#f1c40f', flexShrink: 0 }}>
+              "{selectedKeyword}"
+              <button onClick={onClearKeyword} style={{ background: 'none', border: 'none', color: '#f1c40f', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0, opacity: 0.7 }}
+                onMouseOver={e => e.currentTarget.style.opacity = '1'} onMouseOut={e => e.currentTarget.style.opacity = '0.7'}>
+                <X size={11} />
+              </button>
+            </span>
+          )}
+          {(selectedTopic || selectedKeyword || localSearch) && (
             <button
-              onClick={() => { setLocalSearch(''); setSearch(''); }}
-              style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-subdued)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              onClick={() => { onSelectTopic(null); onClearKeyword?.(); setLocalSearch(''); setSearch(''); }}
+              style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-subdued)', background: 'none', border: '1px solid var(--divider)', borderRadius: '500px', padding: '4px 10px', cursor: 'pointer', flexShrink: 0, transition: 'color 0.15s, border-color 0.15s' }}
+              onMouseOver={e => { e.currentTarget.style.color = 'var(--text-base)'; e.currentTarget.style.borderColor = 'var(--text-subdued)'; }}
+              onMouseOut={e => { e.currentTarget.style.color = 'var(--text-subdued)'; e.currentTarget.style.borderColor = 'var(--divider)'; }}
             >
-              <X size={14} />
+              Clear all
             </button>
           )}
         </div>
       </div>
-
-      {/* Active topic breadcrumb */}
-      {selectedTopic && (
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '4px 10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '4px', marginBottom: '16px', color: 'var(--text-base)', flexShrink: 0 }}>
-          <span>Topic: {selectedTopicLabel}</span>
-          <button onClick={() => onSelectTopic(null)} style={{ background: 'none', border: 'none', color: 'var(--spotify-green)', cursor: 'pointer', fontWeight: '700', marginLeft: '4px' }}>×</button>
-        </div>
-      )}
 
       {/* Fixed-height scrollable review area — never collapses during page load */}
       <div style={{ minHeight: '480px', maxHeight: '580px', overflowY: 'auto', flex: 1 }}>

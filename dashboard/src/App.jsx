@@ -601,6 +601,7 @@ export default function App() {
                 selectedTopicLabel={getSelectedTopicLabel()}
                 selectedKeyword={selectedKeyword}
                 selectedKeywordSentiment={selectedKeywordSentiment}
+                onClearKeyword={() => { setSelectedKeyword(''); setSelectedKeywordSentiment(''); }}
                 refreshTrigger={refreshTrigger}
                 modeReady={modeReady}
               />
