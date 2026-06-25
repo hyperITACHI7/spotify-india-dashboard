@@ -10,7 +10,7 @@ from core.secrets import llm
 
 
 def get_client() -> OpenAI:
-    return OpenAI(api_key=llm.api_key, base_url=llm.base_url)
+    return OpenAI(api_key=llm.api_key, base_url=llm.base_url, timeout=15.0)
 
 
 def model() -> str:

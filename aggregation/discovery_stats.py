@@ -185,7 +185,8 @@ def _auto_summarize_topic(reviews: List[Dict], topic_id: str) -> str:
         _summary_cache[cache_key] = summary
         return summary
     except Exception:
-        # Never return verbatim review text — fall back to rule-based
+        # Cache the failure so repeated /topics calls don't re-hang on the same key
+        _summary_cache[cache_key] = None
         return None
 
 # Phase 3: Quick lookup for pre-computed synthesized summaries
