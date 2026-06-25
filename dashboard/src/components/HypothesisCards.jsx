@@ -25,9 +25,14 @@ export default function HypothesisCards({ dateRange, version, rating, platform, 
 
   if (loading) return <p className="loading">Generating hypotheses...</p>;
 
-  if (!data || data.source === 'error' || !data.hypotheses || data.hypotheses.length === 0) {
-    const msg = data?.error || 'No hypotheses generated.';
-    const isLimit = msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('token');
+  if (!data || !data.hypotheses || data.hypotheses.length === 0) {
+    const source = data?.source;
+    const msg    = data?.error || 'No hypotheses generated.';
+    const isPending = source === 'topics_pending';
+    const isLimit   = !isPending && (msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('token'));
+    const icon  = isPending ? '⏳' : isLimit ? '⏳' : '⚠️';
+    const color = isPending ? 'rgba(29,185,84,0.06)'   : isLimit ? 'rgba(241,196,15,0.06)' : 'rgba(231,76,60,0.06)';
+    const border= isPending ? 'rgba(29,185,84,0.2)'    : isLimit ? 'rgba(241,196,15,0.2)'  : 'rgba(231,76,60,0.2)';
     return (
       <div className="card" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
@@ -37,10 +42,9 @@ export default function HypothesisCards({ dateRange, version, rating, platform, 
         <div style={{
           display: 'flex', alignItems: 'flex-start', gap: '12px',
           padding: '16px', borderRadius: '8px',
-          backgroundColor: isLimit ? 'rgba(241,196,15,0.06)' : 'rgba(231,76,60,0.06)',
-          border: `1px solid ${isLimit ? 'rgba(241,196,15,0.2)' : 'rgba(231,76,60,0.2)'}`,
+          backgroundColor: color, border: `1px solid ${border}`,
         }}>
-          <span style={{ fontSize: '18px', flexShrink: 0 }}>{isLimit ? '⏳' : '⚠️'}</span>
+          <span style={{ fontSize: '18px', flexShrink: 0 }}>{icon}</span>
           <p style={{ fontSize: '13px', color: 'var(--text-subdued)', margin: 0, lineHeight: '1.5' }}>{msg}</p>
         </div>
       </div>
@@ -73,7 +77,7 @@ export default function HypothesisCards({ dateRange, version, rating, platform, 
         </span>
       </div>
       <p style={{ fontSize: '11px', color: 'var(--text-subdued)', marginBottom: '20px' }}>
-        From {summary.total_reviews} reviews · {summary.priority_issues_count} priority issues · {summary.clusters_found} clusters · {summary.trends_tracked} trends
+        From {summary.total_reviews} reviews · {summary.topics_count} topics · {summary.priority_issues_count} priority issues · {summary.clusters_found} clusters · {summary.trends_tracked} trends
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

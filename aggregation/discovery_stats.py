@@ -2281,50 +2281,76 @@ def get_hypotheses(date_range: str = "All", version: str = "All",
         _hypotheses_cache[cache_key] = result
         return result
 
-    # Gather intelligence from existing Phase 4-6 functions
+    # Step 1: overall KPIs — need at least some reviews
     stats = get_stats_aggregated(date_range, version, rating, platform, search, mode=mode)
-    priority = get_priority_issues(date_range, version, rating, platform, search, limit=5, mode=mode)
-    trends_result = get_trends(date_range, version, rating, platform, search, lookback_days=7, mode=mode)
-    clusters_result = get_issue_clusters(date_range, version, rating, platform, search, mode=mode)
-
-    top_issues = priority.get('issues', [])
-    trends = trends_result.get('trends', [])
-    clusters = clusters_result.get('clusters', [])
-
     total_reviews = stats.get('total_reviews', 0)
     if total_reviews == 0:
         return {
             'hypotheses': [],
-            'intelligence_summary': {
-                'total_reviews': 0,
-                'priority_issues_count': 0,
-                'trends_tracked': 0,
-                'clusters_found': 0,
-            },
+            'intelligence_summary': {'total_reviews': 0, 'priority_issues_count': 0,
+                                     'trends_tracked': 0, 'clusters_found': 0, 'topics_ready': False},
             'source': 'none',
         }
+
+    # Step 2: topic matrix — hypotheses must be grounded in real topic distribution.
+    # If NLP hasn't run yet, review_topics is empty and the matrix is [].
+    # Block generation and tell the frontend to wait.
+    matrix = get_topics_matrix(date_range, version, rating, platform, search, mode=mode)
+    if not matrix:
+        return {
+            'hypotheses': [],
+            'error': 'Topic analysis is still running. Hypotheses will generate automatically once it completes — this usually takes 1–3 minutes after scraping.',
+            'intelligence_summary': {'total_reviews': total_reviews, 'priority_issues_count': 0,
+                                     'trends_tracked': 0, 'clusters_found': 0, 'topics_ready': False},
+            'source': 'topics_pending',
+        }
+
+    # Step 3: supporting signals (optional — hypotheses still generate if these are empty)
+    priority      = get_priority_issues(date_range, version, rating, platform, search, limit=5, mode=mode)
+    trends_result = get_trends(date_range, version, rating, platform, search, lookback_days=7, mode=mode)
+    clusters_result = get_issue_clusters(date_range, version, rating, platform, search, mode=mode)
+    top_issues = priority.get('issues', [])
+    trends     = trends_result.get('trends', [])
+    clusters   = clusters_result.get('clusters', [])
+
+    # Step 4: worst review excerpts for the top 4 topics by review volume.
+    # These anchor each hypothesis in real user language, not just aggregated labels.
+    all_reviews = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
+    worst_reviews_by_topic: Dict[str, List[Dict]] = {}
+    for topic_row in matrix[:4]:
+        tid = topic_row['id']
+        topic_revs = [r for r in all_reviews if tid in (r.get('topics') or [])]
+        neg = sorted([r for r in topic_revs if r.get('sentiment') == 'NEGATIVE'],
+                     key=lambda r: r.get('score', 0))
+        worst_reviews_by_topic[tid] = [
+            {'text': (r.get('text') or '')[:200], 'rating': r.get('rating', 1)}
+            for r in neg[:3]
+        ]
 
     from nlp.hypothesis import HypothesisGenerator
     hypotheses = HypothesisGenerator().generate(
         topic_stats=stats,
+        topic_matrix=matrix,
         top_issues=top_issues,
         trends=trends,
         clusters=clusters,
+        worst_reviews_by_topic=worst_reviews_by_topic,
         cache_key=cache_key,
     )
 
-    # LLM error sentinel — surface the real error in live mode, don't substitute mock data.
+    # LLM error sentinel — surface the real error, don't substitute mock data.
     if hypotheses and hypotheses[0].get('_source') == 'error':
         err_msg = hypotheses[0].get('_error', 'LLM unavailable.')
-        # Don't cache errors so the next request retries
         return {
             'hypotheses': [],
             'error': err_msg,
             'intelligence_summary': {
-                'total_reviews': stats.get('total_reviews', 0),
+                'total_reviews': total_reviews,
                 'priority_issues_count': len(top_issues),
                 'trends_tracked': trends_result.get('total_issues_tracked', 0),
                 'clusters_found': len(clusters),
+                'topics_ready': True,
+                'topics_count': len(matrix),
             },
             'source': 'error',
         }
@@ -2335,13 +2361,14 @@ def get_hypotheses(date_range: str = "All", version: str = "All",
     result = {
         'hypotheses': hypotheses,
         'intelligence_summary': {
-            'total_reviews': stats.get('total_reviews', 0),
+            'total_reviews': total_reviews,
             'priority_issues_count': len(top_issues),
             'trends_tracked': trends_result.get('total_issues_tracked', 0),
             'clusters_found': len(clusters),
+            'topics_ready': True,
+            'topics_count': len(matrix),
         },
         'source': 'llm',
     }
-    # Only cache successful LLM results
     _hypotheses_cache[cache_key] = result
     return result
