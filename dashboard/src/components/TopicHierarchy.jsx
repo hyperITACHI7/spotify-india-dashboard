@@ -53,7 +53,7 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
         </p>
       </div>
 
-      <div>
+      <div className="topic-hierarchy-body">
         {matrix.slice(0, 8).map((row) => {
           const isExpanded  = expandedTopic === row.id;
           const subData     = subtopics[row.id];

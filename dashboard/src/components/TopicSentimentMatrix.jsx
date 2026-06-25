@@ -59,14 +59,14 @@ export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTo
         <table className="table-container" style={{ width: '100%', tableLayout: 'fixed' }}>
           <thead>
             <tr>
-              <th style={{ paddingLeft: '24px', width: '16%' }}>Category Topic</th>
+              <th style={{ paddingLeft: '24px', width: '16%' }}>Topic</th>
               <th style={{ textAlign: 'center', width: '60px'  }}>Reviews</th>
-              <th style={{ textAlign: 'center', width: '90px' }}>Avg Sentiment</th>
-              <th style={{ textAlign: 'center', width: '72px' }}>% Pos</th>
-              <th style={{ textAlign: 'center', width: '72px' }}>% Neg</th>
-              <th style={{ textAlign: 'center', width: '82px' }}>Trend (±Δ)</th>
+              <th style={{ textAlign: 'center', width: '80px' }}>Sentiment</th>
+              <th style={{ textAlign: 'center', width: '60px' }}>% Pos</th>
+              <th style={{ textAlign: 'center', width: '60px' }}>% Neg</th>
+              <th style={{ textAlign: 'center', width: '76px' }}>Trend</th>
               <th style={{ textAlign: 'center', width: '82px' }}>Priority</th>
-              <th style={{ paddingRight: '24px' }}>Core Issue Summary</th>
+              <th className="matrix-col-summary" style={{ paddingRight: '24px' }}>Core Issue Summary</th>
             </tr>
           </thead>
           <tbody>
@@ -139,7 +139,7 @@ export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTo
                     </span>
                   </td>
 
-                  <td style={{ paddingRight: '24px', border: 'none', maxWidth: '280px' }}>
+                  <td className="matrix-col-summary" style={{ paddingRight: '24px', border: 'none', maxWidth: '280px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                       <span
                         style={{

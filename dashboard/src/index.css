@@ -372,6 +372,14 @@ body {
   animation: spin-refresh 1s linear infinite;
 }
 
+/* ─── Issues + Keywords row (desktop grid, mobile carousel) ── */
+.issues-keywords-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
 /* ─── Mobile bottom navigation ───────────────────── */
 .mobile-bottom-nav {
   display: none;
@@ -390,6 +398,39 @@ body {
     padding: 16px 16px 80px;
   }
 
+  /* ── Horizontal scroll carousel for issues + keywords ── */
+  .issues-keywords-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    margin-bottom: 24px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* show edge of next card by giving the row a slight right padding */
+    padding-right: 32px;
+    scrollbar-width: none;
+  }
+  .issues-keywords-row::-webkit-scrollbar {
+    display: none;
+  }
+  .issues-keywords-card {
+    flex-shrink: 0;
+    width: 85vw;
+    scroll-snap-align: start;
+  }
+
+  /* ── Topic Sentiment Matrix: hide summary column ── */
+  .matrix-col-summary {
+    display: none;
+  }
+
+  /* ── Topic Hierarchy: scrollable content area ── */
+  .topic-hierarchy-body {
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  /* ── Bottom nav ── */
   .mobile-bottom-nav {
     display: flex;
     position: fixed;

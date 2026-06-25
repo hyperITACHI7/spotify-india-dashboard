@@ -573,9 +573,9 @@ export default function App() {
             </div>
 
             {/* ── 3. Top issues bar + Keyword cloud ────────────────── */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '24px' }}>
-              <div>{matrix && <TopIssuesBar matrix={matrix} />}</div>
-              <div>
+            <div className="issues-keywords-row">
+              <div className="issues-keywords-card">{matrix && <TopIssuesBar matrix={matrix} />}</div>
+              <div className="issues-keywords-card">
                 <KeywordCloud
                   keywords={keywords}
                   selectedKeyword={selectedKeyword}
