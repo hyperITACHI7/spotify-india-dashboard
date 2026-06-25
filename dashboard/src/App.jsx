@@ -670,6 +670,24 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── Mobile bottom navigation (hidden on desktop via CSS) ──── */}
+      <nav className="mobile-bottom-nav">
+        <div
+          className={`mobile-nav-item ${activeNav === 'discovery' ? 'active' : ''}`}
+          onClick={() => setActiveNav('discovery')}
+        >
+          <BarChart2 size={22} />
+          <span>Discovery</span>
+        </div>
+        <div
+          className={`mobile-nav-item ${activeNav === 'help' ? 'active' : ''}`}
+          onClick={() => setActiveNav('help')}
+        >
+          <HelpCircle size={22} />
+          <span>How to Use</span>
+        </div>
+      </nav>
     </div>
   );
 }

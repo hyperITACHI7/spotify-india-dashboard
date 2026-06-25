@@ -721,12 +721,8 @@ def get_all_reviews() -> List[Dict]:
         if _DATA_MODE == "snapshot":
             run_filter = "AND r.ingestion_run_id IN (SELECT id FROM ingestion_runs WHERE is_snapshot = TRUE)"
         else:
-            # Live mode: latest non-snapshot run; empty result if none exists yet
-            run_filter = """AND r.ingestion_run_id = (
-                SELECT id FROM ingestion_runs
-                WHERE is_snapshot = FALSE
-                ORDER BY run_at DESC LIMIT 1
-            )"""
+            # Live mode: ALL non-snapshot runs so multi-batch scrapes are fully visible
+            run_filter = "AND r.ingestion_run_id IN (SELECT id FROM ingestion_runs WHERE is_snapshot = FALSE)"
 
         cursor.execute(f"""
             SELECT
@@ -812,7 +808,7 @@ def filter_mock_reviews(date_range: str, version: str, rating: str, platform: st
     
     # Calculate date limit
     limit_date = None
-    today = datetime(2026, 6, 21)
+    today = datetime.now()
     if date_range == "7d":
         limit_date = today - timedelta(days=7)
     elif date_range == "30d":
@@ -1224,7 +1220,29 @@ def get_top_keywords(date_range: str, version: str, rating: str, platform: str, 
         }
 
     # Fallback: old regex-based word extraction
-    stop_words = {"the", "and", "a", "of", "to", "is", "in", "it", "i", "this", "my", "app", "for", "with", "on", "are", "but", "so", "have", "not", "too", "they"}
+    stop_words = {
+        # Articles / prepositions / conjunctions
+        "the","and","a","an","of","to","is","in","it","i","this","my","app","for",
+        "with","on","are","but","so","have","not","too","they","was","be","as","at",
+        "by","from","or","an","if","its","that","into","than","then","there","these",
+        "their","will","can","just","also","now","any","all","about","has","been",
+        "would","could","should","does","did","do","get","got","like","very","more",
+        "when","which","who","what","how","because","been","had","him","her","his",
+        "she","he","we","you","your","our","us","me","up","out","no","yes","only",
+        "even","over","after","before","use","used","using","make","made","way",
+        "well","want","need","really","still","here","much","every","being","same",
+        "some","one","two","three","time","day","year","new","old","good","great",
+        "best","love","hate","nice","bad","poor","worst","ever","amazing","awesome",
+        "terrible","horrible","perfect","wonderful","excellent","fantastic","okay",
+        "ok","yeah","yes","please","thank","thanks","try","tried","since","while",
+        "though","already","again","first","last","next","never","always","back",
+        "long","little","bit","lot","many","most","per","other","another","each",
+        "few","big","small","high","low","come","came","go","went","see","seen",
+        "know","think","feel","felt","say","said","tell","told","give","gave",
+        "take","took","find","found","keep","kept","let","call","put","run",
+        "update","updated","version","yeu","hai","kar","nahi","bhi","kya","koi",
+        "aur","toh","hum","tha","thi","woh","iss","par","bhai","ek","apna",
+    }
     
     pos_words = {}
     neg_words = {}
@@ -1232,7 +1250,7 @@ def get_top_keywords(date_range: str, version: str, rating: str, platform: str, 
     for r in filtered:
         words = re.findall(r'\b\w+\b', r["text"].lower())
         for w in words:
-            if len(w) <= 2 or w in stop_words:
+            if len(w) <= 3 or w in stop_words:
                 continue
             if r["sentiment"] == "POSITIVE":
                 pos_words[w] = pos_words.get(w, 0) + 1

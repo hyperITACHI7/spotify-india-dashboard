@@ -371,3 +371,70 @@ body {
 .spin {
   animation: spin-refresh 1s linear infinite;
 }
+
+/* ─── Mobile bottom navigation ───────────────────── */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .app-container {
+    flex-direction: column;
+  }
+
+  .main-view {
+    padding: 16px 16px 80px;
+  }
+
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background-color: #000000;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 100;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 32px;
+    cursor: pointer;
+    color: var(--text-subdued);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    transition: color 0.1s;
+    flex: 1;
+  }
+
+  .mobile-nav-item.active {
+    color: var(--text-base);
+  }
+
+  .mobile-nav-item:hover {
+    color: var(--text-base);
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}

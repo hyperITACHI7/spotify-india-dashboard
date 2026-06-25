@@ -434,7 +434,7 @@ export default function HelpPage() {
           <p style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-subdued)', marginBottom: '12px' }}>
             {group}
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '12px', alignItems: 'start' }}>
             {items.map(card => <WidgetCard key={card.title} {...card} />)}
           </div>
         </div>
