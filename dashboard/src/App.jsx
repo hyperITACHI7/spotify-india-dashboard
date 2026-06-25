@@ -32,8 +32,9 @@ export default function App() {
   // ── Drill-down states (scope ONLY the review list at the bottom) ────────
   // These are intentionally NOT in the main useEffect dependency array so
   // clicking a topic row or a buzzword never triggers a full dashboard reload.
-  const [selectedTopic,   setSelectedTopic]   = useState(null);
-  const [selectedKeyword, setSelectedKeyword] = useState('');
+  const [selectedTopic,            setSelectedTopic]            = useState(null);
+  const [selectedKeyword,          setSelectedKeyword]          = useState('');
+  const [selectedKeywordSentiment, setSelectedKeywordSentiment] = useState('');
 
   // ── UI states ───────────────────────────────────────────────────────────
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -549,7 +550,7 @@ export default function App() {
           selectedKeyword={selectedKeyword}
           onClearFilter={handleClearFilter}
           onClearTopic={() => setSelectedTopic(null)}
-          onClearKeyword={() => setSelectedKeyword('')}
+          onClearKeyword={() => { setSelectedKeyword(''); setSelectedKeywordSentiment(''); }}
           onResetAll={handleResetFilters}
         />
 
@@ -574,7 +575,10 @@ export default function App() {
                 <KeywordCloud
                   keywords={keywords}
                   selectedKeyword={selectedKeyword}
-                  onSelectKeyword={setSelectedKeyword}
+                  onSelectKeyword={(kw, sentiment) => {
+                    setSelectedKeyword(kw);
+                    setSelectedKeywordSentiment(kw ? (sentiment || '') : '');
+                  }}
                 />
               </div>
             </div>
@@ -595,6 +599,7 @@ export default function App() {
                 onSelectTopic={handleSelectTopic}
                 selectedTopicLabel={getSelectedTopicLabel()}
                 selectedKeyword={selectedKeyword}
+                selectedKeywordSentiment={selectedKeywordSentiment}
                 refreshTrigger={refreshTrigger}
                 modeReady={modeReady}
               />

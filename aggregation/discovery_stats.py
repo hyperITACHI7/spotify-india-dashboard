@@ -1368,15 +1368,19 @@ def get_anomaly_alerts(date_range: str, version: str, rating: str, platform: str
     return alerts[:3] # Return top 3 alerts
 
 def get_reviews_list(date_range: str, version: str, rating: str, platform: str, search: str,
-                     topic: str = None, issue_keyword: str = None,
+                     topic: str = None, issue_keyword: str = None, keyword_sentiment: str = None,
                      page: int = 1, page_size: int = 10) -> Dict[str, Any]:
     if issue_keyword:
         # Match reviews whose NLP-extracted issues list contains this keyword (case-insensitive).
-        # Don't apply text search — the keyword is an issue label, not a substring of the review body.
+        # Scope to the same sentiment pool used when computing the keyword count so the
+        # displayed badge count matches exactly how many reviews appear in the list.
         ik = issue_keyword.lower().strip()
         filtered = filter_mock_reviews(date_range, version, rating, platform, '', topic=topic)
         filtered = [r for r in filtered
                     if any(ik == i.lower().strip() for i in (r.get('issues') or []))]
+        if keyword_sentiment:
+            ks = keyword_sentiment.upper()
+            filtered = [r for r in filtered if r.get('sentiment', '').upper() == ks]
     else:
         filtered = filter_mock_reviews(date_range, version, rating, platform, search, topic=topic)
     filtered.sort(key=lambda x: x["date"], reverse=True)

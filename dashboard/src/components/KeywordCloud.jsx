@@ -52,10 +52,11 @@ export default function KeywordCloud({ keywords, selectedKeyword, onSelectKeywor
         {active.list.map((kw, i) => {
           const isSelected = selectedKeyword === kw.text;
           const c = active.color;
+          const sentiment = activeTab === 'negative' ? 'NEGATIVE' : 'POSITIVE';
           return (
             <span
               key={`${activeTab}-${kw.text}-${i}`}
-              onClick={() => onSelectKeyword(isSelected ? '' : kw.text)}
+              onClick={() => onSelectKeyword(isSelected ? '' : kw.text, sentiment)}
               style={{
                 fontSize: '12px', fontWeight: '700',
                 color: isSelected ? (activeTab === 'negative' ? '#fff' : '#000') : c,

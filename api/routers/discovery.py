@@ -382,6 +382,7 @@ def get_reviews(
     search: str = "",
     topic: Optional[str] = None,
     issue_keyword: Optional[str] = None,
+    keyword_sentiment: Optional[str] = None,
     page: int = 1,
     page_size: int = 10
 ):
@@ -394,6 +395,7 @@ def get_reviews(
         search=search,
         topic=topic,
         issue_keyword=issue_keyword,
+        keyword_sentiment=keyword_sentiment,
         page=page,
         page_size=page_size
     )

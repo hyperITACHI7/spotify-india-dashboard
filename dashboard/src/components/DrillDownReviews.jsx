@@ -12,6 +12,7 @@ export default function DrillDownReviews({
   onSelectTopic,
   selectedTopicLabel,
   selectedKeyword,
+  selectedKeywordSentiment,
   refreshTrigger,
   modeReady,
 }) {
@@ -53,6 +54,7 @@ export default function DrillDownReviews({
     };
     if (selectedKeyword) {
       params.issue_keyword = selectedKeyword;
+      if (selectedKeywordSentiment) params.keyword_sentiment = selectedKeywordSentiment;
     } else {
       params.search = search;
     }
@@ -66,7 +68,7 @@ export default function DrillDownReviews({
       console.error(err);
       setLoading(false);
     });
-  }, [dateRange, version, rating, platform, search, selectedTopic, selectedKeyword, page, refreshTrigger, modeReady]);
+  }, [dateRange, version, rating, platform, search, selectedTopic, selectedKeyword, selectedKeywordSentiment, page, refreshTrigger, modeReady]);
 
   const handleExport = () => {
     const searchParam = selectedKeyword || search;
