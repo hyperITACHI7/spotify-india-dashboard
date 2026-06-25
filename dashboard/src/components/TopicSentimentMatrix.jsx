@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AlertTriangle, ArrowDownCircle } from 'lucide-react';
 
-export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTopic, totalReviews }) {
+export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTopic, totalReviews, nlpProgress = {} }) {
   const [hoveredRow, setHoveredRow] = useState(null);
 
   const getSentimentColor = (val) => {
@@ -26,11 +26,21 @@ export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTo
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '160px', gap: '14px' }}>
           <p style={{ color: 'var(--text-base)', fontWeight: '600', fontSize: '13px', margin: 0 }}>{msg.title}</p>
           <p style={{ color: 'var(--text-subdued)', fontSize: '11px', margin: 0 }}>{msg.sub}</p>
-          {totalReviews > 0 && (
-            <div style={{ width: '220px', height: '4px', backgroundColor: 'var(--divider)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
-              <div className="nlp-processing-bar" style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px' }} />
-            </div>
-          )}
+          {totalReviews > 0 && (() => {
+            const { processed = 0, total = 0 } = nlpProgress;
+            const pct = total > 0 ? Math.round((processed / total) * 100) : null;
+            return (
+              <>
+                <div style={{ width: '220px', height: '4px', backgroundColor: 'var(--divider)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
+                  {pct !== null
+                    ? <div style={{ position: 'absolute', top: 0, left: 0, width: `${pct}%`, height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px', transition: 'width 0.4s ease' }} />
+                    : <div className="nlp-processing-bar" style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px' }} />
+                  }
+                </div>
+                {pct !== null && <p style={{ color: 'var(--text-subdued)', fontSize: '10px', margin: 0 }}>{processed} / {total} reviews · {pct}%</p>}
+              </>
+            );
+          })()}
         </div>
       </div>
     );

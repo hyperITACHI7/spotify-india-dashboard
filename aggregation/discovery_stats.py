@@ -28,6 +28,16 @@ _DB_REACHABLE: bool | None = None
 _HAS_LIVE_DATA: bool | None = None  # cached after first successful DB count check
 _DATA_MODE: str = "snapshot"        # "snapshot" | "live" — persists for server process lifetime
 
+# NLP background job progress — updated by the background thread in ingestion/pipeline.py
+_nlp_job: dict = {"processed": 0, "total": 0, "status": "idle"}
+
+def set_nlp_progress(processed: int, total: int, status: str = "running") -> None:
+    global _nlp_job
+    _nlp_job = {"processed": processed, "total": total, "status": status}
+
+def get_nlp_progress() -> dict:
+    return dict(_nlp_job)
+
 # LLM result caches — keyed by (mode, date_range, version, rating, platform, search).
 # Cleared whenever mode switches or a scrape completes.
 _hypotheses_cache: dict = {}

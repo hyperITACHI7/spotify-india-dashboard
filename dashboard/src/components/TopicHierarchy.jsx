@@ -3,7 +3,7 @@ import axios from 'axios';
 import { GitBranch, ChevronDown, ChevronRight, Layers } from 'lucide-react';
 import API_URL from '../config';
 
-export default function TopicHierarchy({ matrix, dateRange, version, rating, platform, search, dataMode, totalReviews }) {
+export default function TopicHierarchy({ matrix, dateRange, version, rating, platform, search, dataMode, totalReviews, nlpProgress = {} }) {
   const [expandedTopic, setExpandedTopic] = useState(null);
   const [subtopics,    setSubtopics]    = useState({});
   const [summary,      setSummary]      = useState({});
@@ -51,9 +51,21 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80px', gap: '12px' }}>
           <p style={{ color: 'var(--text-base)', fontWeight: '600', fontSize: '13px', margin: 0 }}>Building topic hierarchy...</p>
           <p style={{ color: 'var(--text-subdued)', fontSize: '11px', margin: 0 }}>NLP topic analysis is still processing — refresh in a moment</p>
-          <div style={{ width: '220px', height: '4px', backgroundColor: 'var(--divider)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
-            <div className="nlp-processing-bar" style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px' }} />
-          </div>
+          {(() => {
+            const { processed = 0, total = 0 } = nlpProgress;
+            const pct = total > 0 ? Math.round((processed / total) * 100) : null;
+            return (
+              <>
+                <div style={{ width: '220px', height: '4px', backgroundColor: 'var(--divider)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
+                  {pct !== null
+                    ? <div style={{ position: 'absolute', top: 0, left: 0, width: `${pct}%`, height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px', transition: 'width 0.4s ease' }} />
+                    : <div className="nlp-processing-bar" style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px' }} />
+                  }
+                </div>
+                {pct !== null && <p style={{ color: 'var(--text-subdued)', fontSize: '10px', margin: 0 }}>{processed} / {total} · {pct}%</p>}
+              </>
+            );
+          })()}
         </div>
       </div>
     );

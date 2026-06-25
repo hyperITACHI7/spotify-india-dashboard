@@ -127,6 +127,10 @@ def get_scrape_progress():
     """Returns the current scrape progress for the frontend progress bar."""
     return _scrape_progress.copy()
 
+@router.get("/nlp-progress")
+def get_nlp_progress():
+    return {"status": "ok", "data": discovery_stats.get_nlp_progress()}
+
 @router.get("/stats")
 def get_stats(
     date_range: str = "All",

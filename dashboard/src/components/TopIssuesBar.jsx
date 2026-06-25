@@ -1,16 +1,24 @@
-function NlpProcessingState({ label }) {
+function NlpProcessingState({ label, nlpProgress = {} }) {
+  const { processed = 0, total = 0 } = nlpProgress;
+  const pct = total > 0 ? Math.round((processed / total) * 100) : null;
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '300px', gap: '16px' }}>
       <p style={{ color: 'var(--text-base)', fontWeight: '600', fontSize: '13px', margin: 0 }}>{label}</p>
-      <p style={{ color: 'var(--text-subdued)', fontSize: '11px', margin: 0 }}>NLP topic analysis is still processing — refresh in a moment</p>
+      <p style={{ color: 'var(--text-subdued)', fontSize: '11px', margin: 0 }}>
+        {pct !== null ? `${processed} / ${total} reviews processed` : 'NLP topic analysis starting…'}
+      </p>
       <div style={{ width: '200px', height: '4px', backgroundColor: 'var(--divider)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
-        <div className="nlp-processing-bar" style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px' }} />
+        {pct !== null
+          ? <div style={{ position: 'absolute', top: 0, left: 0, width: `${pct}%`, height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px', transition: 'width 0.4s ease' }} />
+          : <div className="nlp-processing-bar" style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px' }} />
+        }
       </div>
+      {pct !== null && <p style={{ color: 'var(--text-subdued)', fontSize: '10px', margin: 0 }}>{pct}%</p>}
     </div>
   );
 }
 
-export default function TopIssuesBar({ matrix, totalReviews }) {
+export default function TopIssuesBar({ matrix, totalReviews, nlpProgress }) {
   const topicsWithNegatives = matrix
     .map(row => ({
       ...row,
@@ -32,7 +40,7 @@ export default function TopIssuesBar({ matrix, totalReviews }) {
     : 1;
 
   if (topIssues.length === 0) {
-    if (totalReviews > 0) return <NlpProcessingState label="Analyzing topic distribution..." />;
+    if (totalReviews > 0) return <NlpProcessingState label="Analyzing topic distribution..." nlpProgress={nlpProgress} />;
     return (
       <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '300px' }}>
         <p style={{ color: 'var(--text-subdued)' }}>No reviews scraped yet.</p>

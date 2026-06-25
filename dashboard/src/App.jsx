@@ -65,6 +65,7 @@ export default function App() {
   const [keywords, setKeywords] = useState({ positive: [], negative: [] });
   const [loading,  setLoading]  = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [nlpProgress, setNlpProgress] = useState({ processed: 0, total: 0, status: 'idle' });
 
   // ── Ref to scroll DrillDownReviews into view when a topic is selected ──
   const drilldownRef = useRef(null);
@@ -134,6 +135,26 @@ export default function App() {
       setLoading(false);
     });
   }, [modeReady, dateRange, version, rating, platform, dataMode, refreshTrigger]);
+
+  // ── NLP progress polling ────────────────────────────────────────────────
+  // Active only in live mode when reviews exist but the topic matrix is still empty.
+  useEffect(() => {
+    const needsTopics = modeReady && dataMode === 'live' && (stats?.total_reviews || 0) > 0 && (!matrix || matrix.length === 0);
+    if (!needsTopics) return;
+    const poll = setInterval(() => {
+      axios.get(`${API_URL}/api/discovery/nlp-progress`)
+        .then(res => {
+          const p = res.data.data;
+          setNlpProgress(p);
+          if (p.status === 'done') {
+            clearInterval(poll);
+            handleRefresh();
+          }
+        })
+        .catch(() => {});
+    }, 2500);
+    return () => clearInterval(poll);
+  }, [modeReady, dataMode, stats?.total_reviews, matrix?.length]);
 
   // ── Filter handlers ─────────────────────────────────────────────────────
   const handleApplyFilters = (newFilters) => {
@@ -573,7 +594,7 @@ export default function App() {
 
             {/* ── 3. Top issues bar + Keyword cloud ────────────────── */}
             <div className="issues-keywords-row">
-              <div className="issues-keywords-card"><TopIssuesBar matrix={matrix || []} totalReviews={stats?.total_reviews || 0} /></div>
+              <div className="issues-keywords-card"><TopIssuesBar matrix={matrix || []} totalReviews={stats?.total_reviews || 0} nlpProgress={nlpProgress} /></div>
               <div className="issues-keywords-card">
                 <KeywordCloud
                   keywords={keywords}
@@ -592,6 +613,7 @@ export default function App() {
               selectedTopic={selectedTopic}
               onSelectTopic={handleSelectTopic}
               totalReviews={stats?.total_reviews || 0}
+              nlpProgress={nlpProgress}
             />
 
             {/* ── 5. Review drill-down (moved directly below matrix) ── */}
@@ -614,6 +636,7 @@ export default function App() {
             <TopicHierarchy
               matrix={matrix || []}
               totalReviews={stats?.total_reviews || 0}
+              nlpProgress={nlpProgress}
               {...filterProps}
             />
 
