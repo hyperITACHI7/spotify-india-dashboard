@@ -51,7 +51,8 @@ CREATE TABLE ingestion_runs (
     estimated_tokens    INT,
     actual_tokens_used  INT,             -- populated after NLP run completes
     triggered_by        TEXT,            -- 'scheduler' | 'api' | 'dashboard'
-    status              TEXT NOT NULL DEFAULT 'running'  -- 'running' | 'done' | 'failed'
+    status              TEXT NOT NULL DEFAULT 'running',  -- 'running' | 'done' | 'failed'
+    is_snapshot         BOOL DEFAULT FALSE
 );
 
 -- Partial index to enforce India-only constraint
