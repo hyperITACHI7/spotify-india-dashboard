@@ -432,12 +432,19 @@ def synthesize_findings(
 ):
     """
     Calls the LLM to synthesize top discovery frustrations into a brief summary.
+    In snapshot mode, returns pre-computed data instantly without an LLM call.
     Results are cached per (mode + filters) and cleared on mode switch or scrape.
     """
     import aggregation.discovery_stats as _ds
     cache_key = (_ds.get_data_mode(), date_range, version, rating, platform, search)
     if cache_key in _ds._synthesis_cache:
         return {"summary": _ds._synthesis_cache[cache_key]}
+
+    # Snapshot mode: return pre-computed synthesis, no LLM needed
+    snapshot_text = discovery_stats.get_synthesis_for_mode(date_range, version, rating, platform, search)
+    if snapshot_text is not None:
+        _ds._synthesis_cache[cache_key] = snapshot_text
+        return {"summary": snapshot_text}
 
     all_reviews = discovery_stats.filter_mock_reviews(
         date_range, version, rating, platform, search, topic="search_discovery"

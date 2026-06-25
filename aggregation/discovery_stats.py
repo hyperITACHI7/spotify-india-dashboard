@@ -278,12 +278,12 @@ MOCK_REVIEWS = [
 
     # Playlists & Library
     {"date": "2026-06-20", "rating": 2, "sentiment": "NEGATIVE", "score": -0.50, "version": "v9.0.2", "platform": "ios", "source": "appstore", "topics": ["playlists_library"],
-     "sub_topics": ["Library layout"],
+     "sub_topics": ["Library organization", "Liked songs"],
      "issues": ["confusing library layout", "cluttered interface"],
      "user_intent": "Complaint", "severity": "Medium", "product_area": "UX", "emotional_tone": "Frustrated",
      "text": "Why did they change the library layout? I can't easily find my liked songs. The interface is cluttered."},
     {"date": "2026-06-19", "rating": 1, "sentiment": "NEGATIVE", "score": -0.70, "version": "v9.0.2", "platform": "android", "source": "playstore", "topics": ["playlists_library"],
-     "sub_topics": ["Custom playlist creation"],
+     "sub_topics": ["Playlist creation", "Queue management"],
      "issues": ["custom playlists disappeared after update", "data loss"],
      "user_intent": "Complaint", "severity": "Critical", "product_area": "UX", "emotional_tone": "Frustrated",
      "text": "My local custom playlists are gone after the update! I had 200 curated songs and the queue is empty now."},
@@ -295,46 +295,46 @@ MOCK_REVIEWS = [
 
     # Offline Mode
     {"date": "2026-06-21", "rating": 1, "sentiment": "NEGATIVE", "score": -0.90, "version": "v9.0.2", "platform": "android", "source": "playstore", "topics": ["offline_mode"],
-     "sub_topics": ["Offline playback bugs", "Download reliability"],
+     "sub_topics": ["Offline playback", "Download reliability"],
      "issues": ["offline mode not working", "downloaded songs won't play"],
      "user_intent": "Complaint", "severity": "Critical", "product_area": "Playback", "emotional_tone": "Frustrated",
      "text": "Offline mode is completely broken! I downloaded 3GB of songs for my flight and the app says no internet connection and won't play anything."},
     {"date": "2026-06-19", "rating": 2, "sentiment": "NEGATIVE", "score": -0.65, "version": "v9.0.2", "platform": "ios", "source": "appstore", "topics": ["offline_mode"],
-     "sub_topics": ["Storage management"],
+     "sub_topics": ["Storage management", "Sync issues"],
      "issues": ["downloaded tracks auto-deleting", "cache corruption"],
      "user_intent": "Complaint", "severity": "High", "product_area": "Playback", "emotional_tone": "Frustrated",
      "text": "Downloaded tracks keep deleting themselves automatically. App cache issues are exhausting."},
     {"date": "2026-06-14", "rating": 5, "sentiment": "POSITIVE", "score": 0.85, "version": "v8.9.10", "platform": "ios", "source": "appstore", "topics": ["offline_mode"],
-     "sub_topics": ["Download speed"],
+     "sub_topics": ["Download reliability"],
      "issues": ["fast 5G download speed"],
      "user_intent": "Praise", "severity": "Low", "product_area": "Playback", "emotional_tone": "Satisfied",
      "text": "Downloads are super fast on 5G. Perfect for offline commuting."},
 
     # UI / Layout
     {"date": "2026-06-20", "rating": 2, "sentiment": "NEGATIVE", "score": -0.55, "version": "v9.0.2", "platform": "android", "source": "playstore", "topics": ["ui_layout"],
-     "sub_topics": ["Dark mode issues", "Font/readability"],
+     "sub_topics": ["Dark mode", "Font and readability"],
      "issues": ["poor dark mode readability", "misplaced buttons"],
      "user_intent": "Complaint", "severity": "Medium", "product_area": "UX", "emotional_tone": "Frustrated",
      "text": "The new v9 UI redesign is horrible! The font is too bold, buttons are misplaced, and it's hard to navigate on dark mode."},
     {"date": "2026-06-18", "rating": 3, "sentiment": "NEUTRAL", "score": 0.10, "version": "v8.9.12", "platform": "android", "source": "playstore", "topics": ["ui_layout"],
-     "sub_topics": ["Navigation ease"],
+     "sub_topics": ["Navigation", "Home screen"],
      "issues": ["new interface adjustment period"],
      "user_intent": "Question", "severity": "Low", "product_area": "UX", "emotional_tone": "Neutral",
      "text": "New interface is okay but takes time getting used to. Colors are slightly different."},
     {"date": "2026-06-08", "rating": 5, "sentiment": "POSITIVE", "score": 0.95, "version": "v8.9.10", "platform": "ios", "source": "appstore", "topics": ["ui_layout"],
-     "sub_topics": ["Navigation ease"],
+     "sub_topics": ["Navigation"],
      "issues": ["sleek dark interface design"],
      "user_intent": "Praise", "severity": "Low", "product_area": "UX", "emotional_tone": "Satisfied",
      "text": "Sleek dark interface, beautiful animations when switching tracks!"},
 
     # Performance & Crashes
     {"date": "2026-06-21", "rating": 1, "sentiment": "NEGATIVE", "score": -0.95, "version": "v9.0.2", "platform": "android", "source": "playstore", "topics": ["performance_crashes"],
-     "sub_topics": ["App startup crashes"],
+     "sub_topics": ["App crashes", "Startup freezes"],
      "issues": ["app crashes on startup", "unusable after update"],
      "user_intent": "Complaint", "severity": "Critical", "product_area": "Playback", "emotional_tone": "Frustrated",
      "text": "App keeps crashing on startup after the v9.0.2 update! It freezes on the logo and closes. Unusable."},
     {"date": "2026-06-19", "rating": 2, "sentiment": "NEGATIVE", "score": -0.60, "version": "v9.0.2", "platform": "ios", "source": "appstore", "topics": ["performance_crashes"],
-     "sub_topics": ["Scroll lag", "Battery drain"],
+     "sub_topics": ["Scrolling lag", "Battery drain"],
      "issues": ["scroll lag in playlists", "excessive battery drain"],
      "user_intent": "Complaint", "severity": "High", "product_area": "Playback", "emotional_tone": "Frustrated",
      "text": "Extremely laggy when scrolling through playlists. The app eats my phone battery and heats it up."},
@@ -346,7 +346,7 @@ MOCK_REVIEWS = [
 
     # Subscriptions & Pricing
     {"date": "2026-06-20", "rating": 2, "sentiment": "NEGATIVE", "score": -0.70, "version": "v9.0.2", "platform": "ios", "source": "appstore", "topics": ["subscriptions_pricing"],
-     "sub_topics": ["Family plan pricing", "Student discount"],
+     "sub_topics": ["Family plan", "Premium value"],
      "issues": ["family plan price hike", "poor value for money"],
      "user_intent": "Complaint", "severity": "Medium", "product_area": "Monetization", "emotional_tone": "Frustrated",
      "text": "Spotify premium India is becoming too expensive. The student plan is alright, but the family plan price hike is not worth it."},
@@ -358,67 +358,67 @@ MOCK_REVIEWS = [
 
     # Content Availability
     {"date": "2026-06-17", "rating": 1, "sentiment": "NEGATIVE", "score": -0.80, "version": "v8.9.12", "platform": "android", "source": "playstore", "topics": ["content_availability"],
-     "sub_topics": ["Missing artists", "Licensing issues"],
+     "sub_topics": ["Missing songs", "Catalog gaps"],
      "issues": ["missing regional artists due to licensing", "pushed to competitor platform"],
      "user_intent": "Complaint", "severity": "High", "product_area": "Content", "emotional_tone": "Frustrated",
      "text": "So many Hindi indie songs and regional artists are missing from the catalog due to licensing issues. Moving to YouTube Music."},
     {"date": "2026-06-13", "rating": 3, "sentiment": "NEUTRAL", "score": -0.10, "version": "v8.9.12", "platform": "ios", "source": "appstore", "topics": ["content_availability"],
-     "sub_topics": ["Regional content gaps"],
+     "sub_topics": ["Regional restrictions"],
      "issues": ["limited classical music catalog"],
      "user_intent": "Suggestion", "severity": "Low", "product_area": "Content", "emotional_tone": "Hopeful",
      "text": "Catalog is huge but some local classical tracks are not available."},
 
     # Social & Sharing
     {"date": "2026-06-19", "rating": 4, "sentiment": "POSITIVE", "score": 0.70, "version": "v9.0.2", "platform": "android", "source": "playstore", "topics": ["social_sharing"],
-     "sub_topics": ["Group Session / Jam"],
+     "sub_topics": ["Group sessions"],
      "issues": ["great group jam feature"],
      "user_intent": "Praise", "severity": "Low", "product_area": "Social", "emotional_tone": "Satisfied",
      "text": "Love the group session Jam feature! Sharing music live with friends works great."},
     {"date": "2026-06-15", "rating": 2, "sentiment": "NEGATIVE", "score": -0.45, "version": "v8.9.12", "platform": "ios", "source": "appstore", "topics": ["social_sharing"],
-     "sub_topics": ["Instagram sharing bugs"],
+     "sub_topics": ["Instagram sharing"],
      "issues": ["instagram sharing fails intermittently"],
      "user_intent": "Complaint", "severity": "Medium", "product_area": "Social", "emotional_tone": "Frustrated",
      "text": "Sharing songs to Instagram stories fails half the time. App just glitches out."},
 
     # Podcasts
     {"date": "2026-06-20", "rating": 2, "sentiment": "NEGATIVE", "score": -0.50, "version": "v9.0.2", "platform": "android", "source": "playstore", "topics": ["podcasts"],
-     "sub_topics": ["Podcast recommendations clutter"],
+     "sub_topics": ["Podcast clutter", "Podcast recommendations"],
      "issues": ["podcast recommendations clutter homepage", "no podcast toggle option"],
      "user_intent": "Complaint", "severity": "Medium", "product_area": "UX", "emotional_tone": "Frustrated",
      "text": "I only use Spotify for music but my homepage is full of podcasts recommendation clutter! Give us a toggle to disable podcasts."},
     {"date": "2026-06-12", "rating": 5, "sentiment": "POSITIVE", "score": 0.85, "version": "v8.9.10", "platform": "android", "source": "playstore", "topics": ["podcasts"],
-     "sub_topics": ["Video podcast support"],
+     "sub_topics": ["Playback controls"],
      "issues": ["excellent video podcast support"],
      "user_intent": "Praise", "severity": "Low", "product_area": "Content", "emotional_tone": "Satisfied",
      "text": "Best podcast selection and video support is really smooth."},
 
     # Ads Experience
     {"date": "2026-06-21", "rating": 1, "sentiment": "NEGATIVE", "score": -0.85, "version": "v9.0.2", "platform": "android", "source": "playstore", "topics": ["ads_experience"],
-     "sub_topics": ["Ad frequency", "Unskippable ads"],
+     "sub_topics": ["Ad frequency", "Audio ads"],
      "issues": ["excessive unskippable ads", "too many ads between songs"],
      "user_intent": "Complaint", "severity": "High", "product_area": "Monetization", "emotional_tone": "Frustrated",
      "text": "Too many ads! There are 3 long unskippable ads after every single song on the free version. It's annoying and unusable."},
     {"date": "2026-06-14", "rating": 1, "sentiment": "NEGATIVE", "score": -0.75, "version": "v8.9.10", "platform": "ios", "source": "appstore", "topics": ["ads_experience"],
-     "sub_topics": ["Ad volume levels"],
+     "sub_topics": ["Ad volume"],
      "issues": ["ad volume louder than music", "jarring audio level changes"],
      "user_intent": "Complaint", "severity": "High", "product_area": "Monetization", "emotional_tone": "Frustrated",
      "text": "Ads volume is twice as loud as the music! It is literally hurting my ears. Free experience is terrible."},
 
     # Account & Login
     {"date": "2026-06-18", "rating": 2, "sentiment": "NEGATIVE", "score": -0.50, "version": "v8.9.12", "platform": "android", "source": "playstore", "topics": ["account_login"],
-     "sub_topics": ["UPI authentication failures", "Two-factor verification issues"],
+     "sub_topics": ["Login failures", "Two-factor auth"],
      "issues": ["UPI authentication failure", "two-factor email not arriving"],
      "user_intent": "Complaint", "severity": "High", "product_area": "UX", "emotional_tone": "Frustrated",
      "text": "UPI login authentication keeps failing. The two-factor verification email never arrives in my inbox."},
 
     # Audio Quality
     {"date": "2026-06-20", "rating": 2, "sentiment": "NEGATIVE", "score": -0.40, "version": "v9.0.2", "platform": "ios", "source": "appstore", "topics": ["audio_quality"],
-     "sub_topics": ["Lossless/HiFi absence"],
+     "sub_topics": ["Lossless/HiFi", "Streaming quality"],
      "issues": ["missing lossless HiFi audio option", "competitors offer better audio quality"],
      "user_intent": "Complaint", "severity": "Medium", "product_area": "Playback", "emotional_tone": "Hopeful",
      "text": "Where is the Lossless HiFi audio they promised years ago? Competitors like Apple Music have it at no extra cost."},
     {"date": "2026-06-10", "rating": 5, "sentiment": "POSITIVE", "score": 0.90, "version": "v8.9.10", "platform": "android", "source": "playstore", "topics": ["audio_quality"],
-     "sub_topics": ["Equalizer features"],
+     "sub_topics": ["Equalizer"],
      "issues": ["fantastic equalizer settings"],
      "user_intent": "Praise", "severity": "Low", "product_area": "Playback", "emotional_tone": "Satisfied",
      "text": "Equalizer settings are fantastic. Sounds clean on my Sony headphones."}
@@ -441,32 +441,33 @@ _MOCK_TOPIC_POOL = {
 }
 
 # Phase 2: Sub-topic pool per topic for mock data generation
+# Names must match config/taxonomy.yaml exactly so get_subtopics_for_topic() counts them.
 _MOCK_SUBTOPICS = {
     "search_discovery": ["Discover Weekly quality", "Recommendation relevance", "Search accuracy",
                          "AI DJ recommendations", "Algorithm learning", "Daily Mix quality",
-                         "Release Radar", "Autoplay relevance", "Repetitive suggestions"],
-    "playlists_library": ["Playlist organization", "Liked songs management", "Library layout",
-                          "Custom playlist creation", "Playlist sharing"],
-    "offline_mode": ["Download reliability", "Storage management", "Offline playback bugs",
-                     "Download speed"],
-    "ui_layout": ["Navigation ease", "Dark mode issues", "Font/readability", "Home screen layout",
-                  "Button placement"],
-    "performance_crashes": ["App startup crashes", "Scroll lag", "Battery drain",
-                            "Memory usage", "Background playback issues"],
-    "subscriptions_pricing": ["Premium value", "Family plan pricing", "Student discount",
-                              "Payment failures", "Plan cancellation"],
-    "content_availability": ["Regional content gaps", "Licensing issues", "Missing artists",
-                             "Podcast exclusives"],
-    "social_sharing": ["Instagram sharing bugs", "Group Session / Jam", "Collaborative playlists",
-                       "Profile visibility"],
-    "podcasts": ["Podcast recommendations clutter", "Video podcast support",
-                 "Podcast download issues", "Episode discovery"],
-    "ads_experience": ["Ad frequency", "Ad volume levels", "Unskippable ads",
-                       "Ad relevance", "Premium upsell popups"],
-    "account_login": ["UPI authentication failures", "Two-factor verification issues",
-                      "Password reset problems", "Account merging"],
-    "audio_quality": ["Lossless/HiFi absence", "Equalizer features", "Crossfade issues",
-                      "Audio normalization"],
+                         "Release Radar", "Autoplay relevance", "Repetitive suggestions",
+                         "Regional music discovery"],
+    "playlists_library": ["Library organization", "Liked songs", "Playlist creation",
+                          "Queue management", "Collaborative playlists", "Shuffle mode"],
+    "offline_mode": ["Download reliability", "Storage management", "Offline playback",
+                     "Sync issues", "Cache clearing"],
+    "ui_layout": ["Navigation", "Dark mode", "Font and readability", "Home screen",
+                  "Now Playing view", "Settings"],
+    "performance_crashes": ["App crashes", "Startup freezes", "Scrolling lag", "Battery drain",
+                            "Memory usage"],
+    "subscriptions_pricing": ["Premium value", "Family plan", "Student discount",
+                              "Payment issues", "Trial experience", "Billing errors"],
+    "content_availability": ["Missing songs", "Regional restrictions", "Catalog gaps",
+                             "Exclusive content", "New releases"],
+    "social_sharing": ["Instagram sharing", "Group sessions", "Collaborative playlists",
+                       "Friend activity", "Share functionality"],
+    "podcasts": ["Podcast clutter", "Playback controls", "Podcast recommendations",
+                 "Episode discovery", "Audio quality"],
+    "ads_experience": ["Ad frequency", "Ad volume", "Audio ads", "Video ads",
+                       "Ad relevance", "Premium upsell"],
+    "account_login": ["Login failures", "Two-factor auth", "Password reset", "OAuth issues"],
+    "audio_quality": ["Lossless/HiFi", "Equalizer", "Volume normalization", "Crossfade",
+                      "Streaming quality"],
 }
 
 # Phase 2 helper: pick 1-2 subtopics for a topic based on review text keyword hints
@@ -477,7 +478,7 @@ def _pick_mock_subtopics(topic_id: str, text: str) -> list:
         return []
     text_lower = text.lower()
     picked = []
-    # Simple keyword-subtopic hints
+    # Keyword → canonical taxonomy subtopic name
     hints = {
         "discover weekly": "Discover Weekly quality",
         "recommend": "Recommendation relevance",
@@ -487,37 +488,50 @@ def _pick_mock_subtopics(topic_id: str, text: str) -> list:
         "release radar": "Release Radar",
         "repetitive": "Repetitive suggestions",
         "algorithm": "Algorithm learning",
+        "regional": "Regional music discovery",
         "download": "Download reliability",
-        "offline": "Offline playback bugs",
+        "offline": "Offline playback",
         "storage": "Storage management",
-        "crash": "App startup crashes",
-        "lag": "Scroll lag",
+        "sync": "Sync issues",
+        "crash": "App crashes",
+        "freeze": "Startup freezes",
+        "lag": "Scrolling lag",
         "battery": "Battery drain",
+        "memory": "Memory usage",
         "premium": "Premium value",
-        "family": "Family plan pricing",
+        "family": "Family plan",
         "student": "Student discount",
+        "payment": "Payment issues",
         "ads": "Ad frequency",
         "ad ": "Ad frequency",
-        "loud": "Ad volume levels",
-        "unskippable": "Unskippable ads",
-        "hi fi": "Lossless/HiFi absence",
-        "hifi": "Lossless/HiFi absence",
-        "equalizer": "Equalizer features",
-        "dark mode": "Dark mode issues",
-        "navigation": "Navigation ease",
-        "library": "Library layout",
-        "playlist": "Playlist organization",
-        "liked": "Liked songs management",
+        "loud": "Ad volume",
+        "unskippable": "Audio ads",
+        "hi fi": "Lossless/HiFi",
+        "hifi": "Lossless/HiFi",
+        "lossless": "Lossless/HiFi",
+        "equalizer": "Equalizer",
+        "dark mode": "Dark mode",
+        "navigation": "Navigation",
+        "home screen": "Home screen",
+        "library": "Library organization",
+        "liked": "Liked songs",
+        "playlist": "Playlist creation",
+        "queue": "Queue management",
+        "shuffle": "Shuffle mode",
         "collaborative": "Collaborative playlists",
-        "sharing": "Instagram sharing bugs",
-        "jam": "Group Session / Jam",
-        "podcast": "Podcast recommendations clutter",
-        "login": "UPI authentication failures",
-        "authentication": "UPI authentication failures",
-        "password": "Password reset problems",
-        "missing": "Missing artists",
-        "licensing": "Licensing issues",
-        "regional": "Regional content gaps",
+        "instagram": "Instagram sharing",
+        "sharing": "Instagram sharing",
+        "jam": "Group sessions",
+        "group session": "Group sessions",
+        "podcast": "Podcast clutter",
+        "episode": "Episode discovery",
+        "login": "Login failures",
+        "authentication": "Login failures",
+        "password": "Password reset",
+        "missing": "Missing songs",
+        "licensing": "Catalog gaps",
+        "catalog": "Catalog gaps",
+        "restriction": "Regional restrictions",
     }
     for keyword, sub in hints.items():
         if keyword in text_lower and sub in pool and sub not in picked:
@@ -1506,6 +1520,58 @@ _TOPIC_ACTION_HINTS = {
 }
 
 
+# =====================================================================
+# SNAPSHOT-MODE PRE-COMPUTED LLM OUTPUTS
+# Derived from careful analysis of the 150 offline mock reviews.
+# Returned instantly in snapshot mode — no LLM call required.
+# =====================================================================
+
+_MOCK_AI_SYNTHESIS = """\
+• **Algorithm echo chamber**: Discover Weekly, Release Radar, and Autoplay all converge on the same narrow listening history, failing to introduce new artists — users report being trapped in a repetitive cycle with no meaningful variety, particularly around Hindi indie and regional music.
+
+• **Regional music blindness**: Users seeking Hindi indie and niche regional artists receive mainstream Bollywood recommendations instead, indicating the algorithm heavily over-weights global play-count popularity signals over personalised regional taste profiles.
+
+• **Search surface irrelevance**: Querying lesser-known artist names returns unrelated popular albums rather than the searched entity, suggesting either weak entity-matching logic or a ranking model that systematically deprioritises niche/emerging acts in results.\
+"""
+
+_MOCK_HYPOTHESES = [
+    {
+        "hypothesis": "v9.0.2 introduced a startup crash regression on mid-range Android devices that is actively removing users from their daily listening habit.",
+        "evidence": "2 of 3 performance_crashes reviews are 1-star v9.0.2 Android complaints citing startup crashes and freezes. Prior v8.9.x reviews show no crash complaints. Battery drain and scroll lag co-occur, pointing to a broad v9 runtime regression on lower-spec hardware.",
+        "recommended_test": "A/B rollback: serve v8.9.12 to 10% of Android users on Snapdragon 4xx/6xx devices for 14 days. Compare DAU retention, crash rate (Crashlytics), and session length vs control group on v9.0.2.",
+        "confidence": "High",
+        "topic": "Performance & Crashes"
+    },
+    {
+        "hypothesis": "Free-tier ad interruption frequency is driving churn to competitors rather than converting Indian users to Premium, because the punishment model outweighs perceived upgrade value.",
+        "evidence": "Both ads_experience reviews are 1-star; one cites '3 unskippable ads after every song', another reports ad volume significantly louder than music. Neither mentions premium as a solution — one describes the app as 'unusable'. Free-tier negative NPS likely amplifies churn before any upgrade consideration.",
+        "recommended_test": "A/B test: reduce ad frequency to 1-per-3-songs for 30 days on a 5% free-tier India cohort. Measure premium conversion rate, app uninstall rate, and session abandonment vs control. Separately test audio level normalisation (ads at -14 LUFS) to address loudness complaint.",
+        "confidence": "High",
+        "topic": "Ads Experience"
+    },
+    {
+        "hypothesis": "Downloaded track auto-deletion and cache corruption after updates are systematically destroying the commute and travel use-case — Spotify's primary retention hook for Indian users on inconsistent 4G networks.",
+        "evidence": "2/3 offline_mode negative reviews specifically report tracks deleting themselves or becoming unplayable after the v9 update. One user planned offline use for a flight and lost 3 GB of downloads. Cache corruption is the cited root cause, not user error.",
+        "recommended_test": "Instrument a 'download persistence rate' metric (% of downloaded tracks still playable 48 h post-update). Target 99%+. Run a targeted patch on v9.0.2's cache invalidation logic and deploy to 5% cohort; compare persistence rate, offline session starts, and 7-day retention vs control.",
+        "confidence": "High",
+        "topic": "Offline Mode"
+    },
+    {
+        "hypothesis": "The recommendation algorithm's over-reliance on historical play-count signals creates a discovery filter bubble that alienates Hindi indie listeners and accelerates churn to YouTube Music.",
+        "evidence": "3/5 search_discovery negative reviews cite regional music blindness (Hindi indie vs mainstream Bollywood split); Discover Weekly and Release Radar are described as 'stuck in a bubble'. One user explicitly announced switching to YouTube Music. Autoplay relevance and algorithm learning subtopics cluster around the same complaint.",
+        "recommended_test": "Inject a 15% long-tail diversity token weighted by regional language match for Indian accounts into Discover Weekly generation. Measure 7-day save rate, skip rate, and follow-through on recommended artists vs control cohort over one release cycle.",
+        "confidence": "Medium",
+        "topic": "Song Discovery & Recommendations"
+    },
+    {
+        "hypothesis": "Licensing gaps for Hindi indie and regional artists are a structural churn driver that cannot be compensated by algorithmic improvements alone, as the missing catalog reduces perceived platform value for Spotify India's highest-engagement user segment.",
+        "evidence": "The highest-severity content_availability review is a 1-star entry explicitly citing 'Hindi indie songs and regional artists missing due to licensing' and announcing departure to YouTube Music. A neutral review independently confirms catalog gaps in classical music. Missing content reduces the surface area available to the recommendation engine.",
+        "recommended_test": "Cross-reference the top 100 artist searches resulting in zero-results with licensing status. Prioritise licensing negotiations for the 20 most-searched unlicensed Indian indie artists; monitor 30-day retention for users who previously searched for these artists and found no results.",
+        "confidence": "Medium",
+        "topic": "Content Availability"
+    },
+]
+
 def _build_hierarchy_insight_summary(topic_reviews: List[Dict], topic_id: str) -> Dict[str, Any]:
     label = _get_topic_label(topic_id)
     total = len(topic_reviews)
@@ -1994,6 +2060,18 @@ def get_anomalies(date_range: str = "All", version: str = "All",
 # PHASE 7: HYPOTHESIS GENERATION
 # =====================================================================
 
+def get_synthesis_for_mode(date_range: str = "All", version: str = "All",
+                           rating: str = "All", platform: str = "All",
+                           search: str = "") -> str | None:
+    """
+    Returns the pre-computed synthesis string when in snapshot mode, else None.
+    The router calls this first; if None, it proceeds with the LLM call.
+    """
+    if _DATA_MODE == "snapshot":
+        return _MOCK_AI_SYNTHESIS
+    return None
+
+
 def get_hypotheses(date_range: str = "All", version: str = "All",
                    rating: str = "All", platform: str = "All",
                    search: str = "") -> Dict[str, Any]:
@@ -2006,6 +2084,21 @@ def get_hypotheses(date_range: str = "All", version: str = "All",
     cache_key = (_DATA_MODE, date_range, version, rating, platform, search)
     if cache_key in _hypotheses_cache:
         return _hypotheses_cache[cache_key]
+
+    # Snapshot mode: return pre-computed hypotheses instantly, no LLM needed
+    if _DATA_MODE == "snapshot":
+        result = {
+            'hypotheses': _MOCK_HYPOTHESES,
+            'intelligence_summary': {
+                'total_reviews': 150,
+                'priority_issues_count': 5,
+                'trends_tracked': 4,
+                'clusters_found': 3,
+            },
+            'source': 'snapshot_precomputed',
+        }
+        _hypotheses_cache[cache_key] = result
+        return result
 
     # Gather intelligence from existing Phase 4-6 functions
     stats = get_stats_aggregated(date_range, version, rating, platform, search)
