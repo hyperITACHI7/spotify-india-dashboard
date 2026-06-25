@@ -3,7 +3,7 @@ import axios from 'axios';
 import { GitBranch, ChevronDown, ChevronRight, Layers } from 'lucide-react';
 import API_URL from '../config';
 
-export default function TopicHierarchy({ matrix, dateRange, version, rating, platform, search, dataMode }) {
+export default function TopicHierarchy({ matrix, dateRange, version, rating, platform, search, dataMode, totalReviews }) {
   const [expandedTopic, setExpandedTopic] = useState(null);
   const [subtopics,    setSubtopics]    = useState({});
   const [summary,      setSummary]      = useState({});
@@ -40,7 +40,24 @@ export default function TopicHierarchy({ matrix, dateRange, version, rating, pla
     }
   };
 
-  if (!matrix || matrix.length === 0) return null;
+  if (!matrix || matrix.length === 0) {
+    if (!totalReviews) return null;
+    return (
+      <div className="card" style={{ padding: '20px 24px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+          <Layers size={18} color="var(--spotify-green)" />
+          <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Topic Hierarchy Explorer</h3>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80px', gap: '12px' }}>
+          <p style={{ color: 'var(--text-base)', fontWeight: '600', fontSize: '13px', margin: 0 }}>Building topic hierarchy...</p>
+          <p style={{ color: 'var(--text-subdued)', fontSize: '11px', margin: 0 }}>NLP topic analysis is still processing — refresh in a moment</p>
+          <div style={{ width: '220px', height: '4px', backgroundColor: 'var(--divider)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
+            <div className="nlp-processing-bar" style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px' }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '24px' }}>

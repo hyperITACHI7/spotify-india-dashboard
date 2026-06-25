@@ -372,6 +372,15 @@ body {
   animation: spin-refresh 1s linear infinite;
 }
 
+@keyframes nlp-scan {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+.nlp-processing-bar {
+  animation: nlp-scan 1.6s ease-in-out infinite;
+}
+
 /* ─── Issues + Keywords row (desktop grid, mobile carousel) ── */
 .issues-keywords-row {
   display: grid;

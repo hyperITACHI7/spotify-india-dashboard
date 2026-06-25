@@ -110,24 +110,9 @@ def ingest_run(limit_override: int = None, region_override: str = None, dry_run:
     # Step 3: Insert / Deduplicate via DB
     conn = get_connection()
     cursor = conn.cursor()
-    
-    # Remove previous live (non-snapshot) data so live mode always shows the latest scrape.
-    # Snapshot data (is_snapshot = TRUE) is preserved and never deleted.
-    try:
-        non_snapshot_ids = """
-            SELECT id FROM ingestion_runs WHERE is_snapshot = FALSE OR is_snapshot IS NULL
-        """
-        cursor.execute(f"DELETE FROM review_topics WHERE review_id IN (SELECT id FROM reviews_raw WHERE ingestion_run_id IN ({non_snapshot_ids}))")
-        cursor.execute(f"DELETE FROM reviews_enriched WHERE review_id IN (SELECT id FROM reviews_raw WHERE ingestion_run_id IN ({non_snapshot_ids}))")
-        cursor.execute(f"DELETE FROM reviews_raw WHERE ingestion_run_id IN ({non_snapshot_ids})")
-        cursor.execute(f"DELETE FROM ingestion_runs WHERE is_snapshot = FALSE OR is_snapshot IS NULL")
-        conn.commit()
-        print("Cleared previous live data. Snapshot data preserved.")
-    except Exception as e:
-        print(f"Failed to clear live data: {e}")
-        conn.rollback()
-    
-    # Create the run record
+
+    # Create the run record FIRST — old data is only deleted after the new scrape
+    # commits successfully, so a failed scrape never leaves you with no data.
     cursor.execute(
         """
         INSERT INTO ingestion_runs (region_filter, review_limit_n, relevance_strategy, reviews_fetched, status, is_snapshot)
@@ -175,7 +160,23 @@ def ingest_run(limit_override: int = None, region_override: str = None, dry_run:
     )
     
     conn.commit()
-    
+
+    # Now that new data is safely committed, delete previous live scrape runs.
+    # Snapshot data (is_snapshot = TRUE) is never touched.
+    try:
+        old_run_ids = """
+            SELECT id FROM ingestion_runs WHERE (is_snapshot = FALSE OR is_snapshot IS NULL) AND id != %s
+        """
+        cursor.execute(f"DELETE FROM review_topics WHERE review_id IN (SELECT id FROM reviews_raw WHERE ingestion_run_id IN ({old_run_ids}))", (run_id,))
+        cursor.execute(f"DELETE FROM reviews_enriched WHERE review_id IN (SELECT id FROM reviews_raw WHERE ingestion_run_id IN ({old_run_ids}))", (run_id,))
+        cursor.execute(f"DELETE FROM reviews_raw WHERE ingestion_run_id IN ({old_run_ids})", (run_id,))
+        cursor.execute("DELETE FROM ingestion_runs WHERE (is_snapshot = FALSE OR is_snapshot IS NULL) AND id != %s", (run_id,))
+        conn.commit()
+        print("Cleared previous live scrape data. New data preserved.")
+    except Exception as e:
+        print(f"Failed to clear old live data (non-fatal): {e}")
+        conn.rollback()
+
     # Step 4: VADER-only enrichment — guarantees reviews_enriched rows immediately
     # so the dashboard can show real scraped data even if LLM NLP pipeline fails later.
     if inserted_count > 0:

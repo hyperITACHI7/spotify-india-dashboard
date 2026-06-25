@@ -571,7 +571,7 @@ export default function App() {
 
             {/* ── 3. Top issues bar + Keyword cloud ────────────────── */}
             <div className="issues-keywords-row">
-              <div className="issues-keywords-card">{matrix && <TopIssuesBar matrix={matrix} />}</div>
+              <div className="issues-keywords-card"><TopIssuesBar matrix={matrix || []} totalReviews={stats?.total_reviews || 0} /></div>
               <div className="issues-keywords-card">
                 <KeywordCloud
                   keywords={keywords}
@@ -586,9 +586,10 @@ export default function App() {
 
             {/* ── 4. Topic Sentiment Matrix ─────────────────────────── */}
             <TopicSentimentMatrix
-              matrix={matrix}
+              matrix={matrix || []}
               selectedTopic={selectedTopic}
               onSelectTopic={handleSelectTopic}
+              totalReviews={stats?.total_reviews || 0}
             />
 
             {/* ── 5. Review drill-down (moved directly below matrix) ── */}
@@ -609,7 +610,8 @@ export default function App() {
 
             {/* ── 6. Topic hierarchy (drill into sub-topics) ───────── */}
             <TopicHierarchy
-              matrix={matrix}
+              matrix={matrix || []}
+              totalReviews={stats?.total_reviews || 0}
               {...filterProps}
             />
 

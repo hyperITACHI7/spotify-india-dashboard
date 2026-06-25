@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AlertTriangle, ArrowDownCircle } from 'lucide-react';
 
-export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTopic }) {
+export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTopic, totalReviews }) {
   const [hoveredRow, setHoveredRow] = useState(null);
 
   const getSentimentColor = (val) => {
@@ -15,6 +15,26 @@ export default function TopicSentimentMatrix({ matrix, selectedTopic, onSelectTo
     if (trend.startsWith('-') && trend.includes('neg')) return 'var(--spotify-green)';
     return 'var(--text-subdued)';
   };
+
+  if (!matrix || matrix.length === 0) {
+    const msg = totalReviews > 0
+      ? { title: 'Building topic matrix...', sub: 'NLP topic analysis is still processing — refresh in a moment' }
+      : { title: 'No data yet.', sub: 'Scrape live reviews to populate this table.' };
+    return (
+      <div className="card" style={{ padding: '20px 24px', marginBottom: '24px' }}>
+        <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>Topic Sentiment Matrix</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '160px', gap: '14px' }}>
+          <p style={{ color: 'var(--text-base)', fontWeight: '600', fontSize: '13px', margin: 0 }}>{msg.title}</p>
+          <p style={{ color: 'var(--text-subdued)', fontSize: '11px', margin: 0 }}>{msg.sub}</p>
+          {totalReviews > 0 && (
+            <div style={{ width: '220px', height: '4px', backgroundColor: 'var(--divider)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
+              <div className="nlp-processing-bar" style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', backgroundColor: 'var(--spotify-green)', borderRadius: '2px' }} />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const maxCount = Math.max(...matrix.map(r => r.reviews_count), 1);
 
