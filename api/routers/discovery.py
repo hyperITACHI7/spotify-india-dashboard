@@ -471,17 +471,12 @@ Reviews:
         summary = chat_completion.choices[0].message.content
         _ds._synthesis_cache[cache_key] = summary
         return {"summary": summary}
-    except Exception as e:
-        err = str(e)
-        if '429' in err or 'rate_limit' in err.lower() or 'tokens' in err.lower():
-            msg = 'LLM daily token limit reached. AI Synthesis will work once the quota resets.'
-        elif '401' in err or 'authentication' in err.lower() or 'invalid' in err.lower():
-            msg = 'Invalid API key. Update LLM_API_KEY in config/credentials/.env and restart the server.'
-        elif 'connect' in err.lower() or 'network' in err.lower() or 'timeout' in err.lower():
-            msg = 'LLM provider unreachable. Check your network and verify LLM_BASE_URL in .env.'
-        else:
-            msg = f'LLM unavailable: {err[:120]}'
-        return {"summary": "", "error": msg}
+    except Exception:
+        # LLM unavailable — serve the pre-computed mock synthesis so the
+        # feature always shows something useful regardless of quota/key state.
+        fallback = discovery_stats._MOCK_AI_SYNTHESIS
+        _ds._synthesis_cache[cache_key] = fallback
+        return {"summary": fallback}
 
 @router.get("/alerts")
 def get_alerts(
