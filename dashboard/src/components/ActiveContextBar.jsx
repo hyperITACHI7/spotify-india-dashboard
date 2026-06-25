@@ -50,7 +50,6 @@ export default function ActiveContextBar({
   version,
   rating,
   platform,
-  search,
   selectedTopic,
   selectedTopicLabel,
   selectedKeyword,
@@ -81,9 +80,6 @@ export default function ActiveContextBar({
     globalChips.push({ key: 'rating', label: `${rating} Star${rating !== '1' ? 's' : ''}`, onClear: () => onClearFilter('rating') });
   if (platform !== 'All')
     globalChips.push({ key: 'platform', label: platformLabel[platform] || platform, onClear: () => onClearFilter('platform') });
-  if (search)
-    globalChips.push({ key: 'search', label: `"${search}"`, onClear: () => onClearFilter('search') });
-
   if (selectedTopic)
     drillChips.push({ key: 'topic', label: `Topic: ${selectedTopicLabel}`, onClear: onClearTopic });
   if (selectedKeyword)

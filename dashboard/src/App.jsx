@@ -28,7 +28,6 @@ export default function App() {
   const [version,   setVersion]   = useState('All');
   const [rating,    setRating]    = useState('All');
   const [platform,  setPlatform]  = useState('All');
-  const [search,    setSearch]    = useState('');
 
   // ── Drill-down states (scope ONLY the review list at the bottom) ────────
   // These are intentionally NOT in the main useEffect dependency array so
@@ -112,7 +111,6 @@ export default function App() {
       version,
       rating,
       platform,
-      search,
     };
 
     Promise.all([
@@ -131,7 +129,7 @@ export default function App() {
         console.error('Failed to load dashboard data:', err);
         setLoading(false);
       });
-  }, [modeReady, dateRange, version, rating, platform, search, refreshTrigger]);
+  }, [modeReady, dateRange, version, rating, platform, refreshTrigger]);
 
   // ── Filter handlers ─────────────────────────────────────────────────────
   const handleApplyFilters = (newFilters) => {
@@ -139,15 +137,11 @@ export default function App() {
     setVersion(newFilters.version);
     setRating(newFilters.rating);
     setPlatform(newFilters.platform);
-    setSearch(newFilters.search);
   };
 
   // Clear a single global filter without touching drill-down state
   const handleClearFilter = (key) => {
-    handleApplyFilters({
-      dateRange, version, rating, platform, search,
-      [key]: key === 'search' ? '' : 'All',
-    });
+    handleApplyFilters({ dateRange, version, rating, platform, [key]: 'All' });
   };
 
   const handleResetFilters = () => {
@@ -155,7 +149,6 @@ export default function App() {
     setVersion('All');
     setRating('All');
     setPlatform('All');
-    setSearch('');
     setSelectedTopic(null);
     setSelectedKeyword('');
   };
@@ -240,7 +233,7 @@ export default function App() {
   };
 
   // ── Shared filter props passed to widgets that need them ────────────────
-  const filterProps = { dateRange, version, rating, platform, search };
+  const filterProps = { dateRange, version, rating, platform };
 
   return (
     <div className="app-container">
@@ -541,7 +534,6 @@ export default function App() {
           version={version}
           rating={rating}
           platform={platform}
-          search={search}
           onApply={handleApplyFilters}
           onReset={handleResetFilters}
         />
@@ -552,7 +544,6 @@ export default function App() {
           version={version}
           rating={rating}
           platform={platform}
-          search={search}
           selectedTopic={selectedTopic}
           selectedTopicLabel={getSelectedTopicLabel()}
           selectedKeyword={selectedKeyword}

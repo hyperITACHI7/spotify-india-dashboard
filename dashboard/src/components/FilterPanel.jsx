@@ -1,12 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
-import { X, Search } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export default function FilterPanel({
   dateRange,
   version,
   rating,
   platform,
-  search,
   onApply,
   onReset,
 }) {
@@ -20,39 +18,15 @@ export default function FilterPanel({
     { value: '90d', label: 'Last 90 Days' },
   ];
 
-  // Local search state for immediate display; debounced before firing onApply
-  const [localSearch, setLocalSearch] = useState(search);
-  const debounceRef = useRef(null);
-
-  // Sync display value when parent resets the filter
-  useEffect(() => {
-    setLocalSearch(search);
-  }, [search]);
-
   const handleFilterChange = (key, value) => {
-    onApply({ dateRange, version, rating, platform, search, [key]: value });
-  };
-
-  const handleSearchInput = (value) => {
-    setLocalSearch(value);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      handleFilterChange('search', value);
-    }, 300);
-  };
-
-  const handleClearSearch = () => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    setLocalSearch('');
-    handleFilterChange('search', '');
+    onApply({ dateRange, version, rating, platform, [key]: value });
   };
 
   const hasAnyActiveFilters =
     dateRange !== 'All' ||
     version   !== 'All' ||
     rating    !== 'All' ||
-    platform  !== 'All' ||
-    search    !== '';
+    platform  !== 'All';
 
   return (
     <div className="card" style={{ marginBottom: '16px', padding: '16px', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
@@ -108,29 +82,6 @@ export default function FilterPanel({
             </option>
           ))}
         </select>
-      </div>
-
-      {/* Keyword Search — debounced so every keystroke doesn't fire an API call */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: '1', minWidth: '180px' }}>
-        <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-subdued)', textTransform: 'uppercase' }}>Search Content</span>
-        <div style={{ position: 'relative' }}>
-          <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subdued)', pointerEvents: 'none' }} />
-          <input
-            type="text"
-            value={localSearch}
-            onChange={(e) => handleSearchInput(e.target.value)}
-            placeholder="Search keywords..."
-            className="filter-search-input"
-          />
-          {localSearch && (
-            <button
-              onClick={handleClearSearch}
-              style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-subdued)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            >
-              <X size={14} />
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Reset button — only visible when any filter is active */}

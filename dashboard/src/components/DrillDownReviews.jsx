@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { ArrowLeft, ArrowRight, Download, MessageSquare, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Download, MessageSquare, Star, Search, X } from 'lucide-react';
 import API_URL from '../config';
 
 export default function DrillDownReviews({
@@ -8,7 +8,6 @@ export default function DrillDownReviews({
   version,
   rating,
   platform,
-  search,
   selectedTopic,
   onSelectTopic,
   selectedTopicLabel,
@@ -19,7 +18,16 @@ export default function DrillDownReviews({
   const [reviewsData, setReviewsData] = useState({ total: 0, reviews: [] });
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [localSearch, setLocalSearch] = useState('');
+  const debounceRef = useRef(null);
   const pageSize = 5;
+
+  const handleSearchInput = (value) => {
+    setLocalSearch(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setSearch(value), 300);
+  };
 
   useEffect(() => {
     setPage(1);
@@ -77,21 +85,43 @@ export default function DrillDownReviews({
   return (
     <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px', borderBottom: '1px solid var(--divider)', paddingBottom: '16px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <MessageSquare size={18} color="var(--spotify-green)" />
-          <h3 style={{ fontSize: '16px', fontWeight: '700' }}>
-            Review Excerpts {selectedTopicLabel ? `— ${selectedTopicLabel}` : ''}{selectedKeyword ? ` · "${selectedKeyword}"` : ''}
-          </h3>
+      <div style={{ marginBottom: '16px', borderBottom: '1px solid var(--divider)', paddingBottom: '16px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MessageSquare size={18} color="var(--spotify-green)" />
+            <h3 style={{ fontSize: '16px', fontWeight: '700' }}>
+              Review Excerpts {selectedTopicLabel ? `— ${selectedTopicLabel}` : ''}{selectedKeyword ? ` · "${selectedKeyword}"` : ''}
+            </h3>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-subdued)', fontWeight: '700' }}>
+              {reviewsData.total} reviews found
+            </span>
+            <button onClick={handleExport} className="pill-button" style={{ padding: '6px 16px', fontSize: '12px' }}>
+              <Download size={14} />
+              Export CSV
+            </button>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-subdued)', fontWeight: '700' }}>
-            {reviewsData.total} reviews found
-          </span>
-          <button onClick={handleExport} className="pill-button" style={{ padding: '6px 16px', fontSize: '12px' }}>
-            <Download size={14} />
-            Export CSV
-          </button>
+        {/* Search input — scoped to this review list only */}
+        <div style={{ position: 'relative', maxWidth: '360px' }}>
+          <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subdued)', pointerEvents: 'none' }} />
+          <input
+            type="text"
+            value={localSearch}
+            onChange={(e) => handleSearchInput(e.target.value)}
+            placeholder="Search reviews by keyword..."
+            className="filter-search-input"
+            style={{ paddingLeft: '32px' }}
+          />
+          {localSearch && (
+            <button
+              onClick={() => { setLocalSearch(''); setSearch(''); }}
+              style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-subdued)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       </div>
 
