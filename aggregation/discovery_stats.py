@@ -1160,6 +1160,14 @@ def get_topics_matrix(date_range: str, version: str, rating: str, platform: str,
                 if s and (not _valid or s in _valid):
                     sub_names.add(s)
 
+        # In snapshot mode, sub_topics in DB rows are NULL so sub_names is always
+        # empty. Use the pre-computed subtopic table so the badge glows correctly.
+        effective_subtopic_count = (
+            len(_MOCK_SUBTOPIC_DATA.get(topic_id, []))
+            if _DATA_MODE == "snapshot"
+            else len(sub_names)
+        )
+
         matrix.append({
             'id': topic_id,
             'label': _get_topic_label(topic_id),
@@ -1170,7 +1178,7 @@ def get_topics_matrix(date_range: str, version: str, rating: str, platform: str,
             'trend': _compute_trend(topic_reviews),
             'summary': summary,
             'priority_index': 0 if topic_id == PINNED_TOPIC else 1,
-            'subtopic_count': len(sub_names),
+            'subtopic_count': effective_subtopic_count,
         })
     
     # Step 3: Sort by review count descending
@@ -1190,7 +1198,7 @@ def get_topics_matrix(date_range: str, version: str, rating: str, platform: str,
             'trend': '0% change',
             'summary': 'No discovery-related reviews found for current filters.',
             'priority_index': 0,
-            'subtopic_count': 0,
+            'subtopic_count': len(_MOCK_SUBTOPIC_DATA.get(PINNED_TOPIC, [])) if _DATA_MODE == "snapshot" else 0,
         })
     
     # Step 5: Limit to top 10 (but always keep the pinned topic)
