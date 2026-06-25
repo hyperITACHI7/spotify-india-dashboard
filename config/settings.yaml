@@ -1,0 +1,44 @@
+# config/settings.yaml
+# Non-secret application configuration.
+# API keys and passwords go in config/credentials/ NOT here.
+
+database:
+  pool_size: 10
+  # host / port / name / user / password -> loaded from core/secrets.py
+
+ingestion:
+  batch_size: 500
+  schedule_cron: "0 2 * * *"   # Nightly at 2AM
+  lookback_days: 7
+
+  # India-region + N-review limit
+  region_filter:
+    enabled: true
+    country_code: "IN"
+  review_limit:
+    enabled: true
+    max_reviews_per_run: 1000
+    relevance_strategy: "recency_x_rating"
+
+nlp:
+  sentiment_model: "cardiffnlp/twitter-roberta-base-sentiment-latest"
+  batch_size: 64
+  confidence_threshold: 0.6
+  topic_tagging_strategy: "hybrid"
+  token_budget_warn_threshold: 5000
+
+aggregation:
+  rolling_window_days: 7
+  trend_baseline_days: 14
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  cache_ttl_seconds: 300
+  # secret_key -> loaded from env var SECRET_KEY via core/secrets.py
+
+export:
+  png_dpi: 150
+  pdf_page_size: "A4"
+  csv_delimiter: ","
+  max_csv_rows: 50000

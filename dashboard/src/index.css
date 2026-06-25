@@ -1,0 +1,373 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* ─────────────────────────────────────────────
+   Spotify Design Tokens (exact from web app)
+───────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --spotify-green:        #1DB954;
+  --spotify-green-hover:  #1ed760;
+
+  /* Backgrounds */
+  --bg-base:              #121212;
+  --bg-highlight:         #181818;
+  --bg-elevated:          #282828;
+  --bg-elevated-hover:    #3e3e3e;
+  --bg-press:             #000000;
+
+  /* Text */
+  --text-base:            #FFFFFF;
+  --text-subdued:         #B3B3B3;
+  --text-essential-subdued: #878787;
+
+  /* Structure */
+  --divider:              #282828;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+}
+
+/* ─── Layout ────────────────────────────────── */
+.app-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background-color: #000000;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 72px;
+  min-width: 72px;
+}
+
+.sidebar-logo-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 16px 16px;
+  height: 64px;
+}
+
+.sidebar.collapsed .sidebar-logo-area {
+  justify-content: center;
+  padding: 24px 8px 16px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 8px;
+}
+
+/* ─── Nav items (exact Spotify pattern) ────── */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  color: var(--text-subdued);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.1s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  color: var(--text-base);
+}
+
+.nav-item.active {
+  color: var(--text-base);
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 10px;
+  gap: 0;
+}
+
+/* ─── Main content ──────────────────────────── */
+.main-view {
+  flex: 1;
+  background: linear-gradient(180deg, #1e1e1e 0%, var(--bg-base) 350px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 32px;
+}
+
+/* ─── Cards ─────────────────────────────────── */
+.card {
+  background-color: var(--bg-highlight);
+  border-radius: 8px;
+  padding: 20px;
+  transition: background-color 0.2s ease;
+}
+
+.card:hover {
+  background-color: var(--bg-elevated);
+}
+
+.card h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+/* ─── Buttons ───────────────────────────────── */
+.pill-button {
+  background-color: var(--spotify-green);
+  color: #000000;
+  border: none;
+  border-radius: 500px;
+  padding: 12px 32px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill-button:hover {
+  background-color: var(--spotify-green-hover);
+  transform: scale(1.04);
+}
+
+/* ─── Tables ─────────────────────────────────  */
+.table-container {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table-container th {
+  color: var(--text-essential-subdued);
+  font-weight: 400;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.table-container td {
+  padding: 16px;
+  font-size: 14px;
+  color: var(--text-subdued);
+}
+
+.table-row {
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.table-row:hover {
+  background-color: var(--bg-elevated-hover);
+}
+
+.table-row:hover td {
+  color: var(--text-base);
+}
+
+.highlight-text {
+  color: var(--text-base);
+  font-weight: 500;
+}
+
+/* ─── Grids ──────────────────────────────────── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+/* ─── KPI Cards ─────────────────────────────── */
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 120px;
+}
+
+.kpi-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-subdued);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.kpi-value {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text-base);
+  margin: 8px 0 4px;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.kpi-subtext {
+  font-size: 11px;
+  color: var(--text-subdued);
+}
+
+.stat-value {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+/* ─── Filters ────────────────────────────────── */
+.filter-select {
+  background-color: var(--bg-elevated);
+  color: var(--text-base);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  height: 38px;
+  min-width: 140px;
+}
+
+.filter-select:hover {
+  border-color: var(--text-subdued);
+}
+
+.filter-select:focus {
+  border-color: var(--text-base);
+  background-color: var(--bg-elevated-hover);
+}
+
+.filter-search-input {
+  background-color: var(--bg-elevated);
+  color: var(--text-base);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 8px 12px 8px 36px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+  height: 38px;
+  outline: none;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.filter-search-input::placeholder {
+  color: var(--text-essential-subdued);
+}
+
+.filter-search-input:hover {
+  border-color: var(--text-subdued);
+}
+
+.filter-search-input:focus {
+  border-color: var(--text-base);
+  background-color: var(--bg-elevated-hover);
+}
+
+/* ─── State helpers ──────────────────────────── */
+.loading {
+  color: var(--text-subdued);
+  font-size: 14px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
+/* Active matrix rows */
+.table-row.active-row td {
+  color: var(--text-base) !important;
+}
+
+/* Topic Sentiment Matrix — truncate button label on small viewports */
+.matrix-btn-label {
+  display: inline;
+}
+
+@media (max-width: 1280px) {
+  .matrix-btn-label {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .main-view {
+    padding: 16px;
+  }
+}
+
+@keyframes spin-refresh {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin-refresh 1s linear infinite;
+}

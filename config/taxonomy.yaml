@@ -1,0 +1,248 @@
+# config/taxonomy.yaml
+categories:
+
+  # ============================================================
+  # PRIMARY FOCUS: Song Discoverability
+  # This category is the north-star metric for this project.
+  # Expand its keyword list aggressively as new patterns emerge.
+  # ============================================================
+  - id: search_discovery
+    label: "Song Discovery & Recommendations"
+    priority: CRITICAL   # Evaluated first; higher weight in impact scoring
+    subcategories:
+      - algorithm_recommendations
+      - manual_search
+      - curated_playlists
+      - radio_autoplay
+      - regional_discovery
+    subtopics:
+      - "Discover Weekly quality"
+      - "Recommendation relevance"
+      - "Search accuracy"
+      - "AI DJ recommendations"
+      - "Algorithm learning"
+      - "Daily Mix quality"
+      - "Release Radar"
+      - "Autoplay relevance"
+      - "Regional music discovery"
+      - "Repetitive suggestions"
+    keywords:
+      # Core discovery intent
+      - discover
+      - discovery
+      - found
+      - new song
+      - new music
+      - new artist
+      - new album
+      - explore
+      - explore tab
+      - for you
+      # Algorithm & personalisation
+      - recommendation
+      - recommended
+      - suggest
+      - suggested
+      - algorithm
+      - personalised
+      - personalized
+      - tailored
+      - curated
+      - taste profile
+      - listening history
+      # Specific Spotify discovery surfaces
+      - discover weekly
+      - daily mix
+      - release radar
+      - spotify radio
+      - artist radio
+      - song radio
+      - autoplay
+      - auto play
+      - up next
+      - mix
+      - blend
+      - made for you
+      - on repeat
+      - repeat rewind
+      - new releases
+      - charts
+      - trending
+      - top hits
+      - fresh finds
+      # Search experience
+      - search
+      - search result
+      - cant find
+      - not showing
+      - doesnt show
+      - no result
+      # India-specific regional discovery
+      - hindi song
+      - bollywood
+      - regional music
+      - kannada song
+      - tamil song
+      - telugu song
+      - punjabi song
+      - marathi song
+      - desi
+      - tollywood
+      - kollywood
+      - indi pop
+      - indie music
+      - independent artist
+      # Positive discovery signals
+      - love the recommendations
+      - great suggestions
+      - exactly what i wanted
+      - found some gems
+      - introduced me to
+      - never heard before
+      - addicted to
+      # Negative discovery signals
+      - same songs
+      - same old
+      - repetitive
+      - stuck on
+      - boring recommendations
+      - nothing new
+      - already heard
+      - played too much
+      - keeps repeating
+      - no variety
+      - doesnt understand
+      - wrong language
+      - irrelevant
+      - unrelated
+      - random songs
+      - horrible suggestions
+      - algorithm is bad
+      - algorithm broken
+      - bubble
+      - echo chamber
+      - radio
+      - browse
+
+  # ============================================================
+  # SECONDARY CATEGORIES (context & noise separation)
+  # These help isolate discovery feedback from unrelated issues.
+  # ============================================================
+
+  - id: playlists_library
+    label: "Playlists & Library"
+    subtopics:
+      - "Playlist creation"
+      - "Playlist editing"
+      - "Missing songs"
+      - "Library organization"
+      - "Liked songs"
+      - "Queue management"
+      - "Shuffle mode"
+      - "Collaborative playlists"
+    keywords: [playlist, library, saved, collection, album, queue, liked songs, shuffle,
+               collaborative playlist, playlist suggestion, add to playlist]
+
+  - id: offline_mode
+    label: "Offline Mode"
+    subtopics:
+      - "Download reliability"
+      - "Storage management"
+      - "Offline playback"
+      - "Sync issues"
+      - "Cache clearing"
+    keywords: [offline, download, cache, no internet, downloaded, save for offline]
+
+  - id: ui_layout
+    label: "UI / Layout"
+    subtopics:
+      - "Navigation"
+      - "Search UX"
+      - "Home screen"
+      - "Now Playing view"
+      - "Settings"
+      - "Dark mode"
+      - "Font and readability"
+    keywords: [ui, interface, design, layout, button, icon, menu, navigation, theme, dark mode]
+
+  - id: performance_crashes
+    label: "Performance & Crashes"
+    subtopics:
+      - "App crashes"
+      - "Startup freezes"
+      - "Scrolling lag"
+      - "Battery drain"
+      - "Memory usage"
+    keywords: [crash, freeze, lag, slow, bug, glitch, error, broken, unresponsive, battery, RAM]
+
+  - id: subscriptions_pricing
+    label: "Subscriptions & Pricing"
+    subtopics:
+      - "Premium value"
+      - "Family plan"
+      - "Student discount"
+      - "Payment issues"
+      - "Trial experience"
+      - "Billing errors"
+    keywords: [premium, subscription, price, cost, expensive, free, trial, payment, billing, cancel]
+
+  - id: content_availability
+    label: "Content Availability"
+    subtopics:
+      - "Missing songs"
+      - "Regional restrictions"
+      - "Exclusive content"
+      - "New releases"
+      - "Catalog gaps"
+    keywords: [song, artist, album, missing, removed, not available, region, country, catalog,
+               hindi songs missing, regional content, local music]
+
+  - id: social_sharing
+    label: "Social & Sharing"
+    subtopics:
+      - "Share functionality"
+      - "Collaborative playlists"
+      - "Friend activity"
+      - "Group sessions"
+      - "Instagram sharing"
+    keywords: [share, friend, follow, collaborative, group session, jam, social, blend]
+
+  - id: podcasts
+    label: "Podcasts"
+    subtopics:
+      - "Playback controls"
+      - "Episode discovery"
+      - "Podcast recommendations"
+      - "Audio quality"
+      - "Podcast clutter"
+    keywords: [podcast, episode, show, audiobook, creator, chaptered]
+
+  - id: ads_experience
+    label: "Ads Experience"
+    subtopics:
+      - "Ad frequency"
+      - "Ad relevance"
+      - "Premium upsell"
+      - "Video ads"
+      - "Audio ads"
+      - "Ad volume"
+    keywords: [ad, advertisement, commercial, interrupt, sponsored, volume, annoying]
+
+  - id: account_login
+    label: "Account & Login"
+    subtopics:
+      - "Login failures"
+      - "Two-factor auth"
+      - "Password reset"
+      - "OAuth issues"
+    keywords: [login, sign in, account, password, two factor, OAuth, Facebook login, email]
+
+  - id: audio_quality
+    label: "Audio Quality"
+    subtopics:
+      - "Streaming quality"
+      - "Equalizer"
+      - "Volume normalization"
+      - "Crossfade"
+      - "Lossless/HiFi"
+    keywords: [quality, bitrate, lossless, HiFi, sound, audio, equalizer, normalization, volume]

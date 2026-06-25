@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Credentials — never commit real secrets
+config/credentials/.env
+config/credentials/api_keys.yaml
+*.env
+!*.env.template
+!.env.docker
+
+# Logs
+*.log
+backend_stdout.log
+backend_stderr.log
+
+# Database
+*.sql.bak
+*.dump
+
+# Node / Frontend
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / AI tools
+.vscode/settings.json
+.idea/
+*.swp
+.claude/
+
+# Generated DB artifacts
+db/schema_full.sql
+
+# Temp / scratchpad
+scratchpad/
+*.tmp

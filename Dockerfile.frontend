@@ -1,0 +1,24 @@
+# Stage 1: Build the React app
+FROM node:20-alpine AS build
+
+WORKDIR /app
+COPY dashboard/package*.json ./
+RUN npm ci
+COPY dashboard/ .
+
+# Inject the backend URL at build time
+ARG VITE_API_URL=http://localhost:8000
+ENV VITE_API_URL=$VITE_API_URL
+
+RUN npm run build
+
+# Stage 2: Serve with lightweight static server
+FROM node:20-alpine
+
+WORKDIR /app
+RUN npm install -g serve
+COPY --from=build /app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["serve", "-s", "dist", "-l", "3000"]

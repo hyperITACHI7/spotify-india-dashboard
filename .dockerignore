@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Node
+dashboard/node_modules/
+dashboard/dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Credentials (NEVER include in Docker images)
+config/credentials/.env
+config/credentials/api_keys.yaml
+
+# Git
+.git/
+.gitignore
+
+# Docker
+*.log

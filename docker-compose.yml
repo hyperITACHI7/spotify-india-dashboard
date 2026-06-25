@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_DB: spotify_reviews
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./api:/app/api
+      - ./core:/app/core
+      - ./aggregation:/app/aggregation
+      - ./ingestion:/app/ingestion
+      - ./nlp:/app/nlp
+      - ./config:/app/config
+    env_file:
+      - ./config/credentials/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: spotify_reviews
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./dashboard/src:/app/src
+      - ./dashboard/public:/app/public
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
