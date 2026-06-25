@@ -38,20 +38,26 @@ export default function DrillDownReviews({
     if (modeReady === false) return;
 
     setLoading(true);
-    const searchParam = selectedKeyword || search;
 
-    axios.get(`${API_URL}/api/discovery/reviews`, {
-      params: {
-        date_range: dateRange,
-        version,
-        rating,
-        platform: platform || 'All',
-        search: searchParam,
-        topic: selectedTopic || 'All',
-        page,
-        page_size: pageSize,
-      }
-    })
+    // selectedKeyword comes from the keyword cloud (NLP issue label) — match via
+    // issue_keyword so the backend filters by r['issues'], not by text substring.
+    // Local search is a plain text search against the review body.
+    const params = {
+      date_range: dateRange,
+      version,
+      rating,
+      platform: platform || 'All',
+      topic: selectedTopic || 'All',
+      page,
+      page_size: pageSize,
+    };
+    if (selectedKeyword) {
+      params.issue_keyword = selectedKeyword;
+    } else {
+      params.search = search;
+    }
+
+    axios.get(`${API_URL}/api/discovery/reviews`, { params })
     .then(res => {
       setReviewsData(res.data.data);
       setLoading(false);

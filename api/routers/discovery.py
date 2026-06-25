@@ -381,6 +381,7 @@ def get_reviews(
     platform: str = "All",
     search: str = "",
     topic: Optional[str] = None,
+    issue_keyword: Optional[str] = None,
     page: int = 1,
     page_size: int = 10
 ):
@@ -392,6 +393,7 @@ def get_reviews(
         platform=platform,
         search=search,
         topic=topic,
+        issue_keyword=issue_keyword,
         page=page,
         page_size=page_size
     )
