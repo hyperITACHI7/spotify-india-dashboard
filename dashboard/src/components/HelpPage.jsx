@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import {
-  BarChart2, TrendingUp, PieChart, Cloud, Table2, MessageSquare,
-  GitBranch, Bell, Layers, ArrowUpRight, AlertTriangle, Lightbulb,
+  BarChart2, TrendingUp, Cloud, Table2, MessageSquare,
+  GitBranch, Bell, Lightbulb,
   Sparkles, Filter, RefreshCw, Star, ThumbsUp, ThumbsDown,
-  ChevronDown, X, PlayCircle,
+  ChevronDown, X, PlayCircle, Database, Wrench, TrendingDown,
 } from 'lucide-react';
 
 // ─── Mini SVG trend line ────────────────────────────────────────────────────
@@ -17,32 +17,6 @@ function SparkLine({ color = 'var(--spotify-green)' }) {
   return (
     <svg width={w} height={h}>
       <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
-    </svg>
-  );
-}
-
-// ─── Mini donut ─────────────────────────────────────────────────────────────
-function MiniDonut() {
-  const r = 18, cx = 22, cy = 22, sw = 7;
-  const circ = 2 * Math.PI * r;
-  const slices = [
-    { pct: 42, color: '#1db954' },
-    { pct: 30, color: '#e74c3c' },
-    { pct: 28, color: '#f1c40f' },
-  ];
-  let off = 0;
-  return (
-    <svg width={44} height={44}>
-      {slices.map((s, i) => {
-        const dash = (s.pct / 100) * circ;
-        const el = <circle key={i} cx={cx} cy={cy} r={r} fill="none"
-          stroke={s.color} strokeWidth={sw}
-          strokeDasharray={`${dash} ${circ - dash}`}
-          strokeDashoffset={-(off / 100) * circ}
-          transform={`rotate(-90 ${cx} ${cy})`} />;
-        off += s.pct;
-        return el;
-      })}
     </svg>
   );
 }
@@ -65,22 +39,9 @@ const PREVIEW = {
       <div style={{fontSize:'11px',color:'var(--spotify-green)',fontWeight:'700'}}>↑ +12%</div>
     </div>
   ),
-  donut: (
-    <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-      <MiniDonut />
-      <div style={{fontSize:'9px',display:'flex',flexDirection:'column',gap:'3px'}}>
-        {[['42%','Positive','#1db954'],['30%','Negative','#e74c3c'],['28%','Neutral','#f1c40f']].map(([p,l,c])=>(
-          <div key={l} style={{display:'flex',alignItems:'center',gap:'4px'}}>
-            <span style={{width:6,height:6,borderRadius:'50%',background:c,display:'inline-block'}}/>
-            <span style={{color:'var(--text-subdued)'}}>{p} {l}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  ),
   bar: (
     <div style={{display:'flex',flexDirection:'column',gap:'4px'}}>
-      {[['Playlist restrictions',82,'#e74c3c'],['Excessive ads',74,'#e74c3c'],['Offline broken',55,'#f1c40f'],['Great Daily Mix',32,'#1db954']].map(([l,p,c])=>(
+      {[['Playlist limits',82,'#e74c3c'],['No ad skip',74,'#e74c3c'],['Offline broken',55,'#f1c40f'],['Discover Weekly',32,'#1db954']].map(([l,p,c])=>(
         <div key={l}>
           <div style={{display:'flex',justifyContent:'space-between',fontSize:'9px',color:'var(--text-subdued)',marginBottom:'2px'}}>
             <span>{l}</span><span>{p}%</span>
@@ -93,10 +54,19 @@ const PREVIEW = {
     </div>
   ),
   keywords: (
-    <div style={{display:'flex',flexWrap:'wrap',gap:'5px'}}>
-      {[['playlist',15,'#e74c3c'],['ads',13,'#e74c3c'],['discover',14,'#1db954'],['algorithm',11,'#f1c40f'],['crash',12,'#e74c3c'],['offline',10,'#f1c40f'],['lyrics',9,'#1db954']].map(([w,s,c])=>(
-        <span key={w} style={{fontSize:`${s}px`,color:c,fontWeight:'700'}}>{w}</span>
-      ))}
+    <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+      <div style={{fontSize:'9px',color:'var(--text-subdued)',marginBottom:'2px'}}>FRUSTRATIONS</div>
+      <div style={{display:'flex',flexWrap:'wrap',gap:'5px'}}>
+        {[['no ad skip',13],['bad shuffle',9],['ads forced',11]].map(([w,s])=>(
+          <span key={w} style={{fontSize:'11px',color:'#e74c3c',fontWeight:'700',padding:'2px 8px',borderRadius:'500px',background:'rgba(231,76,60,0.12)',border:'1px solid rgba(231,76,60,0.25)'}}>{w} <span style={{opacity:0.6,fontSize:'9px'}}>{s}</span></span>
+        ))}
+      </div>
+      <div style={{fontSize:'9px',color:'var(--text-subdued)',marginBottom:'2px',marginTop:'4px'}}>PRAISE</div>
+      <div style={{display:'flex',flexWrap:'wrap',gap:'5px'}}>
+        {[['daily mix',14],['lyrics sync',8]].map(([w,s])=>(
+          <span key={w} style={{fontSize:'11px',color:'#1db954',fontWeight:'700',padding:'2px 8px',borderRadius:'500px',background:'rgba(29,185,84,0.12)',border:'1px solid rgba(29,185,84,0.25)'}}>{w} <span style={{opacity:0.6,fontSize:'9px'}}>{s}</span></span>
+        ))}
+      </div>
     </div>
   ),
   matrix: (
@@ -132,6 +102,48 @@ const PREVIEW = {
       ))}
     </div>
   ),
+  hypothesis: (
+    <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+      <div style={{fontSize:'9px',color:'var(--text-subdued)',fontWeight:'700',textTransform:'uppercase'}}>H1 · Ads Experience</div>
+      <div style={{fontSize:'10px',color:'var(--text-base)',lineHeight:'1.4'}}>Free-tier ad density is the single largest churn driver, cited in 84% of negative Ads reviews.</div>
+      <div style={{padding:'5px 8px',background:'rgba(29,185,84,0.06)',borderRadius:'5px',border:'1px solid rgba(29,185,84,0.15)'}}>
+        <div style={{fontSize:'8px',fontWeight:'700',color:'#1db954',textTransform:'uppercase',marginBottom:'2px'}}>Recommended Solution</div>
+        <div style={{fontSize:'9px',color:'var(--text-base)'}}>Add a 5-second skip button after each ad for free-tier users.</div>
+      </div>
+    </div>
+  ),
+  synthesis: (
+    <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+      {[['EXECUTIVE SUMMARY','#1db954'],['KEY PROBLEM AREAS','#1db954'],['ROOT CAUSE ANALYSIS','#1db954'],['RECOMMENDED ACTIONS','#1db954']].map(([l,c])=>(
+        <div key={l} style={{fontSize:'8px',fontWeight:'700',color:c,letterSpacing:'0.06em'}}>{l}</div>
+      ))}
+    </div>
+  ),
+  datamode: (
+    <div style={{display:'flex',gap:'6px'}}>
+      <div style={{flex:1,padding:'8px',borderRadius:'6px',background:'rgba(29,185,84,0.08)',border:'1px solid rgba(29,185,84,0.3)',textAlign:'center'}}>
+        <div style={{fontSize:'9px',fontWeight:'700',color:'#1db954'}}>LIVE</div>
+        <div style={{fontSize:'8px',color:'var(--text-subdued)',marginTop:'2px'}}>Scraped data</div>
+      </div>
+      <div style={{flex:1,padding:'8px',borderRadius:'6px',background:'rgba(255,255,255,0.04)',border:'1px solid var(--divider)',textAlign:'center'}}>
+        <div style={{fontSize:'9px',fontWeight:'700',color:'var(--text-subdued)'}}>SNAPSHOT</div>
+        <div style={{fontSize:'8px',color:'var(--text-subdued)',marginTop:'2px'}}>10k frozen reviews</div>
+      </div>
+    </div>
+  ),
+  scrape: (
+    <div>
+      <div style={{fontSize:'9px',color:'#1db954',fontWeight:'700',marginBottom:'6px'}}>Stage 1 — Fetching + Sentiment (fast)</div>
+      <div style={{height:'5px',background:'rgba(255,255,255,0.06)',borderRadius:'3px',overflow:'hidden',marginBottom:'8px'}}>
+        <div style={{width:'100%',height:'100%',background:'#1db954',borderRadius:'3px'}}/>
+      </div>
+      <div style={{fontSize:'9px',color:'var(--text-subdued)',fontWeight:'700',marginBottom:'6px'}}>Stage 2 — NLP topic analysis (background)</div>
+      <div style={{height:'5px',background:'rgba(255,255,255,0.06)',borderRadius:'3px',overflow:'hidden'}}>
+        <div style={{width:'55%',height:'100%',background:'rgba(29,185,84,0.5)',borderRadius:'3px'}}/>
+      </div>
+      <div style={{fontSize:'8px',color:'var(--text-subdued)',marginTop:'4px'}}>Dashboard unlocks after Stage 1. Topics appear as NLP completes.</div>
+    </div>
+  ),
   filters: (
     <div style={{display:'flex',flexWrap:'wrap',gap:'4px'}}>
       {[['Last 30 Days','#1db954'],['v9.0.2','#1db954'],['1–2 Stars','#1db954'],['Topic: Playlists','#f1c40f']].map(([l,c])=>(
@@ -139,16 +151,6 @@ const PREVIEW = {
           {l}<X size={7}/>
         </div>
       ))}
-    </div>
-  ),
-  scrape: (
-    <div>
-      <div style={{height:'6px',background:'rgba(255,255,255,0.06)',borderRadius:'3px',overflow:'hidden',marginBottom:'4px'}}>
-        <div style={{width:'75%',height:'100%',background:'#1db954',borderRadius:'3px'}}/>
-      </div>
-      <div style={{fontSize:'9px',color:'var(--text-subdued)',display:'flex',justifyContent:'space-between'}}>
-        <span>Deep AI analysis: 120/200 reviews…</span><span>75%</span>
-      </div>
     </div>
   ),
 };
@@ -161,23 +163,16 @@ const WIDGETS = [
       {
         icon: BarChart2, color: '#1db954', preview: 'kpi',
         title: 'KPI Cards',
-        desc: 'Four headline numbers — total reviews, avg rating, sentiment score, and % negative.',
-        tips: ['Sentiment ranges from −1 to +1. Below −0.1 is a warning.', 'These update whenever you change a filter.'],
+        desc: 'Four headline numbers — total reviews, avg rating, sentiment score (−1 to +1), and % negative. Update instantly on every filter change.',
+        tips: ['Sentiment below −0.1 is a warning sign. Below −0.3 is a P0 signal.', 'Avg rating and sentiment score can diverge — a 3★ average can still have highly negative sentiment if reviews are polarised.'],
         interact: null,
       },
       {
         icon: TrendingUp, color: '#1db954', preview: 'trend',
         title: 'Sentiment Trend',
-        desc: 'Line chart showing how sentiment shifts over time. Spot regressions after updates.',
-        tips: ['A sudden dip usually follows a bad app update — confirm with the Version filter.', 'Use "Last 30 Days" to zoom in on recent events.'],
-        interact: 'Hover the chart to see the exact sentiment and review count for each period.',
-      },
-      {
-        icon: PieChart, color: '#f1c40f', preview: 'donut',
-        title: 'Sentiment Donut',
-        desc: 'Splits reviews into Positive, Negative, and Neutral at a glance.',
-        tips: ['Red (Negative) above 35% of the circle needs attention.', 'Neutral reviews are often mixed — worth reading to understand fence-sitters.'],
-        interact: null,
+        desc: 'Line chart showing how sentiment shifts over time. Use it to spot regressions after app updates and confirm whether issues are worsening or improving.',
+        tips: ['A sudden dip usually follows a bad app update — confirm by switching the Version filter to that release.', 'Use "Last 30 Days" to zoom into recent events without noise from older reviews.'],
+        interact: 'Hover the chart to see the exact sentiment score and review count for each time bucket.',
       },
     ],
   },
@@ -187,22 +182,22 @@ const WIDGETS = [
       {
         icon: BarChart2, color: '#e74c3c', preview: 'bar',
         title: 'Top Issues Bar',
-        desc: 'Horizontal bars ranking the most-mentioned complaint categories by volume.',
-        tips: ['Red bars = complaints; green bars = praise.', 'Filter to 1-star reviews to isolate the harshest feedback.'],
+        desc: 'Horizontal bars ranking the most-mentioned issue labels by volume, extracted by the NLP pipeline from high-severity negative reviews. Red = complaint; green = praise.',
+        tips: ['This only populates after NLP has run (scrape required for live mode).', 'Filter to 1-star reviews to isolate the harshest feedback and see which issues spike.'],
         interact: null,
       },
       {
         icon: Table2, color: '#1db954', preview: 'matrix',
         title: 'Topic Sentiment Matrix',
-        desc: 'One row per topic — review count, avg sentiment, % positive/negative, trend, and an AI-generated core issue summary.',
-        tips: ['Red % negative above 60 with high volume = P0 fix.', 'The Core Issue Summary is generated from real review text, not labels.'],
-        interact: 'Click a row to filter the Review Excerpts below to that topic. The page auto-scrolls. Green left border = selected.',
+        desc: 'One row per topic — review count, % negative, trend direction, and an AI-generated or rule-based summary of the core issue. NLP must complete for summaries to appear.',
+        tips: ['% negative above 60 with high volume = P0 fix.', 'The trend arrow shows whether the topic is getting worse (↑ negative) or better over the last 7 days vs prior period.', 'Summaries are generated by Groq LLM if credits are available, otherwise by a rule-based extractor.'],
+        interact: 'Click any row to filter Review Excerpts to that topic. The page auto-scrolls down to the review list. Green left border = selected topic.',
       },
       {
         icon: GitBranch, color: '#a855f7', preview: 'hierarchy',
-        title: 'Topic Hierarchy',
-        desc: 'Expands each topic into specific sub-issues. Shows which sub-topics have the most negative reviews.',
-        tips: ['The green badge shows how many sub-topics have real review data before you expand.', 'Dimmed rows with "no data yet" are taxonomy-defined but unmatched in current reviews.'],
+        title: 'Topic Hierarchy Explorer',
+        desc: 'Expands each topic into its specific sub-issues with review counts and % negative per sub-topic. Shows which sub-topic is most painful before you read a single review.',
+        tips: ['The green badge on each topic row shows how many sub-topics have real review data.', 'Rows labelled "no data yet" are taxonomy-defined categories that no scraped review matched — expected for niche topics.'],
         interact: 'Click a topic row to expand it. Sub-topics with data show review count and % negative.',
       },
     ],
@@ -212,17 +207,17 @@ const WIDGETS = [
     items: [
       {
         icon: Cloud, color: '#f1c40f', preview: 'keywords',
-        title: 'Keyword Cloud',
-        desc: 'Most-used words sized by frequency. Red = appears in negative reviews; green = positive.',
-        tips: ['Large red words are your priority action items.', 'Clicking a keyword does NOT reload the charts — only the review list updates.'],
-        interact: 'Click any word to filter Review Excerpts to only reviews containing it. Click again or press ✕ to clear.',
+        title: 'Keyword Buzz',
+        desc: 'NLP-extracted issue labels sorted into two tabs: Frustrations (issues appearing mostly in negative reviews) and Praise (issues appearing mostly in positive reviews). Max 3 words per label for reliable matching.',
+        tips: ['Labels are extracted by the NLP pipeline — they reflect what the AI identified as the core issue in each review, not just words that appear in the text.', 'A label appearing in both negative and positive reviews defaults to Frustrations.', 'This only shows meaningful data after NLP has run on scraped reviews.'],
+        interact: 'Click any label to filter Review Excerpts to reviews the NLP linked to that issue. Click again or press ✕ to clear. Charts do NOT reload — only the review list updates.',
       },
       {
         icon: MessageSquare, color: '#3b82f6', preview: 'reviews',
         title: 'Review Excerpts',
-        desc: 'The actual review text, one card per review, with star rating, sentiment badge, date, platform, and extracted issue tags.',
-        tips: ['Filter to 1–2 stars + a topic to find the most actionable critical feedback.', '1-star reviews are never marked Positive — the sentiment engine is rating-aware.'],
-        interact: 'Select a topic in the Matrix above to pre-filter. Combine with a keyword for pinpoint results.',
+        desc: 'The actual review text, one card per review, with star rating, sentiment badge, date, platform, and NLP-extracted issue tags. Sits directly below the Topic Matrix and auto-scrolls there when you click a topic row.',
+        tips: ['Filter to 1–2 stars + a specific topic to find the most actionable critical feedback.', '1-star reviews are never marked Positive — the sentiment engine is rating-aware and overrides VADER for extreme ratings.', 'The issue tags on each card come from LLM extraction (first 20 reviews after scraping) or the rule-based extractor (remaining reviews).'],
+        interact: 'Click a topic row in the Matrix above — the page scrolls here and filters automatically. Combine with a Keyword Buzz click for pinpoint results.',
       },
     ],
   },
@@ -232,37 +227,23 @@ const WIDGETS = [
       {
         icon: Bell, color: '#e74c3c', preview: null,
         title: 'Alerts',
-        desc: 'Auto-generated CRITICAL / WARNING / INFO signals based on statistical thresholds.',
-        tips: ['CRITICAL = fix today. WARNING = monitor. INFO = healthy.', 'Alerts dynamically respect your active filters.'],
+        desc: 'Auto-generated CRITICAL / WARNING / INFO signals based on statistical thresholds — negative sentiment spikes, rating drops, version regressions, and anomaly events.',
+        tips: ['CRITICAL = investigate today. WARNING = monitor. INFO = healthy signal.', 'Alerts dynamically respect your active filters — filter to a specific version to see its alerts only.'],
         interact: null,
       },
       {
-        icon: Layers, color: '#a855f7', preview: null,
-        title: 'Priority Matrix',
-        desc: 'Issues plotted on Volume vs Severity axes. Top-right quadrant = fix first.',
-        tips: ['High severity + low volume = edge case but risky (e.g. data loss).', 'Low severity + high volume = hurts perception even if non-critical.'],
+        icon: Lightbulb, color: '#f1c40f', preview: 'hypothesis',
+        title: 'AI Hypothesis Cards',
+        desc: 'Five grounded product hypotheses generated by Groq after reading the full topic matrix, worst review excerpts, trends, and clusters. Each card includes: evidence (specific numbers), a concrete solution, expected metric impact, and an A/B experiment design.',
+        tips: ['Hypotheses only generate after NLP has populated the topic matrix — the "topic analysis still running" state appears otherwise.', 'Evidence cites real numbers from the data (e.g. "38 reviews, 76% negative") — not invented.', 'High-confidence hypotheses have strong evidence in the data; Low-confidence are exploratory starting points.'],
         interact: null,
       },
       {
-        icon: AlertTriangle, color: '#f1c40f', preview: null,
-        title: 'Anomaly Alerts',
-        desc: 'Statistical anomaly detection — flags days or versions that deviate from baseline.',
-        tips: ['Anomalies usually appear 1–2 days after an app update ships.', 'Cross-reference with the Trend chart to confirm spike vs trend shift.'],
-        interact: null,
-      },
-      {
-        icon: Lightbulb, color: '#f1c40f', preview: null,
-        title: 'Hypothesis Cards',
-        desc: 'AI-generated "if-then" hypotheses based on data patterns — starting points for A/B test ideas.',
-        tips: ['Low-confidence hypotheses are exploratory. Treat them as questions, not answers.'],
-        interact: null,
-      },
-      {
-        icon: Sparkles, color: '#1db954', preview: null,
+        icon: Sparkles, color: '#1db954', preview: 'synthesis',
         title: 'AI Synthesis',
-        desc: 'A 200–300 word narrative summary of the entire visible dataset, written by Groq after analysing hundreds of reviews.',
-        tips: ['Best read after applying filters — it summarises only what is currently visible.', 'If Groq credits are exhausted a rule-based summary is shown instead.'],
-        interact: 'Click "Regenerate" to refresh with the current filter context.',
+        desc: 'A structured 4-section product briefing generated by Groq from the full cross-topic analysis: Executive Summary → Key Problem Areas → Root Cause Analysis → Recommended Product Actions. Uses real topic volumes, negative percentages, and review excerpts.',
+        tips: ['Each section is grounded in the actual data — problem areas cite topic names and percentages, not generic observations.', 'Recommended Actions are concrete and implementable (not vague like "improve UX") with named success criteria.', 'Apply filters before loading — the synthesis only analyses what is currently visible.'],
+        interact: null,
       },
     ],
   },
@@ -271,16 +252,23 @@ const WIDGETS = [
     items: [
       {
         icon: Filter, color: '#1db954', preview: 'filters',
-        title: 'Filter Bar & Active Context',
-        desc: 'Narrows ALL widgets by Timeframe / App Version / Rating / Platform / Keyword. Active filters show as dismissible chips.',
-        tips: ['Green chips = global (affect all widgets). Yellow chips = review list only — no chart reload.', 'Search has a 300 ms debounce — type naturally.'],
-        interact: 'Click ✕ on any chip to remove just that filter. "Reset all" clears everything.',
+        title: 'Filter Bar',
+        desc: 'Narrows ALL widgets by Timeframe / App Version / Star Rating / Platform. Active filters appear as dismissible chips. Yellow chips (Keyword Buzz selection, Topic selection) only affect the review list — charts do not reload.',
+        tips: ['Green chips = global filters (reload all charts). Yellow chips = review list drill-down only.', 'Search has a 300ms debounce — type naturally without triggering per-keystroke reloads.'],
+        interact: 'Click ✕ on any chip to remove that filter individually. "Reset all" clears everything including topic and keyword selections.',
+      },
+      {
+        icon: Database, color: '#3b82f6', preview: 'datamode',
+        title: 'Data Mode',
+        desc: 'Two modes: Snapshot (10,000 frozen Spotify India reviews, always available, instant load — great for exploring the dashboard) and Live (uses your most recently scraped data, requires at least one scrape).',
+        tips: ['Snapshot mode is the default on first load — no scraping needed.', 'Switching modes clears all AI caches so Hypothesis Cards and AI Synthesis regenerate from the new dataset.', 'Live mode shows a "no data" state until you scrape at least once in the current session.'],
+        interact: 'The mode indicator (SNAPSHOT / LIVE) is in the top header. Click it or use the Scrape modal to switch.',
       },
       {
         icon: RefreshCw, color: '#1db954', preview: 'scrape',
         title: 'Scrape Live Reviews',
-        desc: 'Fetches fresh Play Store + App Store reviews, runs VADER sentiment analysis, then optionally runs Groq LLM deep analysis.',
-        tips: ['Stages: Fetching → Analyzing Sentiment → Deep AI Analysis.', 'If Groq credits run out the bar stops at Deep AI Analysis — VADER data is still saved.', 'Scrape 100–500 for a quick refresh; 1 000+ for a thorough session.'],
+        desc: 'Pulls fresh Play Store + App Store reviews in two stages. Stage 1 (fast): fetches reviews and runs VADER sentiment — dashboard unlocks immediately. Stage 2 (background): NLP pipeline runs topic extraction, issue labelling, and AI summaries while you explore.',
+        tips: ['The dashboard is usable after Stage 1 completes. Topic widgets show a progress bar while Stage 2 runs in the background.', 'LLM extraction is capped at 20 reviews per scrape to stay within Groq free-tier limits — the 20 most negative reviews are prioritised. The rest get rule-based issue extraction.', 'Start with 50–100 reviews for a quick refresh. Larger scrapes give richer topic data but take longer for Stage 2 to complete.'],
         interact: null,
       },
     ],
@@ -385,7 +373,7 @@ export default function HelpPage() {
             How to Use Discovery
           </h2>
           <p style={{ color: 'var(--text-subdued)', fontSize: '13px', lineHeight: 1.6, maxWidth: '540px' }}>
-            Automated intelligence from live Spotify India reviews. Click any widget card below to learn what it shows and how to interact with it.
+            AI-powered intelligence from live Spotify India reviews. Click any widget card below to learn what it shows and how to interact with it.
           </p>
         </div>
       </div>
@@ -395,12 +383,13 @@ export default function HelpPage() {
         <p style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-subdued)', marginBottom: '14px' }}>
           Get started in 4 steps
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'var(--divider)', borderRadius: '12px', overflow: 'hidden' }}>
+        {/* auto-fit collapses to 2×2 on mobile instead of squishing 4 columns */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1px', background: 'var(--divider)', borderRadius: '12px', overflow: 'hidden' }}>
           {[
-            { n: '01', icon: RefreshCw, t: 'Scrape data',    d: 'Click "Scrape Live Reviews" in the header to pull fresh app store reviews.' },
-            { n: '02', icon: Filter,    t: 'Apply filters',  d: 'Narrow by date, version, star rating, or platform using the filter bar.' },
-            { n: '03', icon: Table2,    t: 'Pick a topic',   d: 'Click a row in the Topic Matrix to filter reviews to that category.' },
-            { n: '04', icon: Sparkles,  t: 'Read insights',  d: 'Dig into Review Excerpts, AI summaries, and Hypothesis Cards.' },
+            { n: '01', icon: Database,   t: 'Choose a mode',   d: 'Start in Snapshot for an instant demo with 10k reviews, or scrape live data for real-time analysis.' },
+            { n: '02', icon: Filter,     t: 'Apply filters',   d: 'Narrow by date range, app version, star rating, or platform to focus on what matters.' },
+            { n: '03', icon: Table2,     t: 'Explore topics',  d: 'Click a row in the Topic Matrix. The page scrolls to matching reviews automatically.' },
+            { n: '04', icon: Sparkles,   t: 'Read AI insights', d: 'Hypothesis Cards give concrete product fixes. AI Synthesis gives the full executive briefing.' },
           ].map(({ n, icon: I, t, d }, i) => (
             <div key={i} style={{ background: 'var(--bg-elevated)', padding: '20px 18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
