@@ -405,19 +405,21 @@ def run_nlp_pipeline(dry_run: bool = False, limit: int = 500, skip_llm: bool = F
     conn = get_connection()
     cursor = conn.cursor()
     
-    # 1. Fetch unprocessed reviews (includes VADER-only rows that need LLM upgrade)
+    # 1. Fetch unprocessed reviews — lowest-rated first so the LLM call budget
+    #    goes to the reviews most likely to contain actionable complaints.
     cursor.execute("""
         SELECT r.id, r.text_original, r.rating
         FROM reviews_raw r
         LEFT JOIN reviews_enriched e ON r.id = e.review_id
         WHERE e.review_id IS NULL
            OR e.nlp_processed = FALSE
+        ORDER BY r.rating ASC NULLS LAST
         LIMIT %s
     """, (limit,))
-    
+
     unprocessed = cursor.fetchall()
     print(f"Found {len(unprocessed)} unprocessed reviews in the database.")
-    
+
     if not unprocessed:
         return
 
@@ -425,7 +427,10 @@ def run_nlp_pipeline(dry_run: bool = False, limit: int = 500, skip_llm: bool = F
     success_count = 0
     total_unprocessed = len(unprocessed)
     llm_rate_limited = False  # Flag: stop calling LLM after 429
-    LLM_CALL_CAP = 500        # Max LLM calls per pipeline run to stay within free-tier budget
+    # Cap at 20 LLM calls per run. Reviews are fetched lowest-rated first, so the
+    # 20 most negative reviews get LLM issue extraction; the rest get rule-based only.
+    # This keeps us well within Groq's free-tier limits (30 RPM / 6k TPM).
+    LLM_CALL_CAP = 20
     llm_calls_made = 0
     for i, row in enumerate(unprocessed):
         if progress_callback and i % 10 == 0:
@@ -568,7 +573,16 @@ def run_nlp_pipeline(dry_run: bool = False, limit: int = 500, skip_llm: bool = F
 
     conn.commit()  # final commit for any remainder
     
-    # Phase 3: Generate topic summaries (works without LLM via rule-based fallback)
+    # Phase 3: Generate topic summaries.
+    # Delete existing live summaries first so stale entries from old code never survive.
+    try:
+        cursor2 = conn.cursor()
+        cursor2.execute("DELETE FROM topic_summaries")
+        conn.commit()
+        cursor2.close()
+    except Exception:
+        conn.rollback()
+
     print("\n--- Phase 3: Generating topic summaries ---")
     if llm_client and not llm_rate_limited:
         try:
