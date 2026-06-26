@@ -1301,17 +1301,17 @@ def get_top_keywords(date_range: str, version: str, rating: str, platform: str, 
     """
     filtered = filter_mock_reviews(date_range, version, rating, platform, search, mode=mode)
 
-    # Phase 5: Check if reviews have issue data; if so, use issue-based buzzwords
+    # Phase 5: Check if reviews have issue data; if so, use issue-based buzzwords.
+    # Single bimodal pass: each issue goes to the bucket where it appears most often.
     has_issues = any(r.get('issues') for r in filtered)
 
     if has_issues:
-        from nlp.keywords import extract_frustration_keywords, extract_praise_keywords
-        neg_sorted = extract_frustration_keywords(filtered, top_n=10)
-        pos_sorted = extract_praise_keywords(filtered, top_n=10)
-        # Normalize to the old {text, value} format for backward compat
+        from nlp.keywords import extract_buzzwords_bimodal
+        neg_sorted, pos_sorted = extract_buzzwords_bimodal(filtered, top_n=10)
+        # Include topics so the frontend can use them for NLP-linked review filtering
         return {
-            "positive": [{"text": b['text'], "value": b['count']} for b in pos_sorted] or [{"text": "great", "value": 1}],
-            "negative": [{"text": b['text'], "value": b['count']} for b in neg_sorted] or [{"text": "issue", "value": 1}],
+            "positive": [{"text": b['text'], "value": b['count'], "topics": b.get('topics', [])} for b in pos_sorted] or [{"text": "great", "value": 1}],
+            "negative": [{"text": b['text'], "value": b['count'], "topics": b.get('topics', [])} for b in neg_sorted] or [{"text": "issue", "value": 1}],
         }
 
     # Fallback: old regex-based word extraction
