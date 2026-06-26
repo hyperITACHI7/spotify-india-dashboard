@@ -452,27 +452,78 @@ def synthesize_findings(
         _ds._synthesis_cache[cache_key] = snapshot_text
         return {"summary": snapshot_text}
 
-    all_reviews = discovery_stats.filter_mock_reviews(
-        date_range, version, rating, platform, search, topic="search_discovery", mode=data_mode
-    )
-    negatives = [r for r in all_reviews if r.get("sentiment") == "NEGATIVE"]
-    negatives.sort(key=lambda r: r.get("score", 0))   # most negative first
-    context_text = "\n".join([f"- {r['text']}" for r in negatives[:15]])
+    # Build cross-topic context — stats + topic matrix + worst reviews per topic
+    stats = discovery_stats.get_stats_aggregated(date_range, version, rating, platform, search, mode=data_mode)
+    total_reviews = stats.get("total_reviews", 0)
+    if total_reviews == 0:
+        return {"summary": "", "error": "No reviews found for the selected filters."}
 
-    if not context_text:
-        return {"summary": "", "error": "No negative discovery reviews found to synthesize."}
+    sent_dist = stats.get("sentiment_distribution", {})
+    neg_pct = round((sent_dist.get("NEGATIVE", 0) / total_reviews) * 100) if total_reviews else 0
+    pos_pct = round((sent_dist.get("POSITIVE", 0) / total_reviews) * 100) if total_reviews else 0
+    avg_rating = stats.get("average_rating", 0)
 
-    prompt = f"""You are an expert product analyst at Spotify India.
-Based ONLY on the following negative user reviews, summarize the core problems users are facing with music discovery and recommendations in exactly 3 bullet points. Do not mention that these are reviews.
+    matrix = discovery_stats.get_topics_matrix(date_range, version, rating, platform, search, mode=data_mode)
 
-Reviews:
-{context_text}"""
+    # Top negative reviews per topic (up to 3 each, top 4 topics)
+    all_reviews = discovery_stats.filter_mock_reviews(date_range, version, rating, platform, search, mode=data_mode)
+    all_negatives = sorted([r for r in all_reviews if r.get("sentiment") == "NEGATIVE"],
+                           key=lambda r: r.get("score", 0))
+
+    topic_sections = []
+    for t in (matrix or [])[:5]:
+        tid = t["id"]
+        topic_revs = [r for r in all_negatives if tid in (r.get("topics") or [])]
+        sample = topic_revs[:3]
+        excerpt_block = "\n".join(f'    [{r.get("rating", "?")}★] "{(r.get("text") or "")[:160]}"' for r in sample)
+        topic_sections.append(
+            f"  • {t['label']}: {t['reviews_count']} reviews | "
+            f"{t.get('pct_negative', 0)}% negative | trend: {t.get('trend', '—')}\n"
+            + (excerpt_block if excerpt_block else "    (no negative reviews in this topic)")
+        )
+
+    # Fallback: if no topics, use raw negative reviews
+    if not topic_sections:
+        raw = "\n".join(f'  - "{(r.get("text") or "")[:180]}"' for r in all_negatives[:12])
+        if not raw:
+            return {"summary": "", "error": "No negative reviews found to synthesize."}
+        topic_sections = [raw]
+
+    topic_context = "\n\n".join(topic_sections)
+
+    prompt = f"""You are a senior product analyst at Spotify India. You have been given the full review intelligence report below. Write a structured product briefing for the product team.
+
+REPORT DATA:
+- Total reviews: {total_reviews}
+- Average rating: {avg_rating:.1f}/5
+- Sentiment: {neg_pct}% negative · {pos_pct}% positive
+
+TOP PROBLEM AREAS (with real user quotes):
+{topic_context}
+
+Write a structured briefing with EXACTLY these 4 sections. Use the exact headers shown.
+
+**Executive Summary**
+2-3 sentences. Name the single biggest problem and its scope (cite specific numbers from the data). Be direct and analytical.
+
+**Key Problem Areas**
+3-5 bullet points. Each must cite the topic name, review volume, and negative percentage. End each bullet with the core user pain in one phrase.
+
+**Root Cause Analysis**
+2-3 sentences. Identify the underlying product or engineering failures causing the problems above. Be specific — name features, flows, or systems.
+
+**Recommended Product Actions**
+3-5 numbered actions. Each must be concrete and implementable (not vague like "improve UX"). Reference which topic/problem area it addresses. Include a measurable success criterion for each.
+
+No preamble, no closing remarks. Output only the 4 sections."""
 
     try:
         client = _llm.get_client()
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             model=_llm.model(),
+            max_tokens=1200,
+            temperature=0.3,
         )
         summary = chat_completion.choices[0].message.content
         _ds._synthesis_cache[cache_key] = summary

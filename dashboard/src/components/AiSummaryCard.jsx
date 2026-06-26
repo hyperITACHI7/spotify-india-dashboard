@@ -64,16 +64,33 @@ export default function AiSummaryCard({ dateRange, version, rating, platform, se
           <p style={{ fontSize: '13px', color: 'var(--text-subdued)', margin: 0, lineHeight: '1.5' }}>{error}</p>
         </div>
       ) : (
-        <div style={{ fontSize: '14px', lineHeight: '1.8', color: 'var(--text-subdued)' }}>
-          {summary.split('\n').map((line, i) => (
-            <p key={i} style={{ marginBottom: '8px', color: line.trim() ? 'var(--text-base)' : 'transparent' }}>
-              {line.split(/(\*\*[^*]+\*\*)/).map((part, j) =>
-                part.startsWith('**') && part.endsWith('**')
-                  ? <strong key={j}>{part.slice(2, -2)}</strong>
-                  : part
-              )}
-            </p>
-          ))}
+        <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+          {summary.split('\n').map((line, i) => {
+            const trimmed = line.trim();
+            // Section header: entire line is **Text** (or starts with ** on its own line)
+            const headerMatch = trimmed.match(/^\*\*(.+)\*\*$/);
+            if (headerMatch) {
+              return (
+                <p key={i} style={{
+                  fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em',
+                  textTransform: 'uppercase', color: 'var(--spotify-green)',
+                  marginTop: i === 0 ? 0 : '20px', marginBottom: '6px',
+                }}>
+                  {headerMatch[1]}
+                </p>
+              );
+            }
+            if (!trimmed) return <div key={i} style={{ height: '4px' }} />;
+            return (
+              <p key={i} style={{ marginBottom: '6px', color: 'var(--text-base)', lineHeight: '1.65' }}>
+                {line.split(/(\*\*[^*]+\*\*)/).map((part, j) =>
+                  part.startsWith('**') && part.endsWith('**')
+                    ? <strong key={j}>{part.slice(2, -2)}</strong>
+                    : part
+                )}
+              </p>
+            );
+          })}
         </div>
       )}
     </div>

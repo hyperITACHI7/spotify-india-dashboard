@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Lightbulb, FlaskConical, BarChart3, TestTube } from 'lucide-react';
+import { Lightbulb, FlaskConical, BarChart3, TestTube, Wrench, TrendingUp } from 'lucide-react';
 import API_URL from '../config';
 
 export default function HypothesisCards({ dateRange, version, rating, platform, search, dataMode, refreshTrigger }) {
@@ -105,18 +105,42 @@ export default function HypothesisCards({ dateRange, version, rating, platform, 
               {h.hypothesis}
             </p>
 
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', flex: '1 1 200px' }}>
-                <BarChart3 size={12} color="var(--spotify-green)" style={{ marginTop: '2px', flexShrink: 0 }} />
-                <div>
-                  <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subdued)', textTransform: 'uppercase' }}>Evidence</span>
-                  <p style={{ fontSize: '11px', color: 'var(--text-subdued)', margin: '2px 0 0', lineHeight: '1.4' }}>{h.evidence}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', flex: '1 1 200px' }}>
+                  <BarChart3 size={12} color="var(--spotify-green)" style={{ marginTop: '2px', flexShrink: 0 }} />
+                  <div>
+                    <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subdued)', textTransform: 'uppercase' }}>Evidence</span>
+                    <p style={{ fontSize: '11px', color: 'var(--text-subdued)', margin: '2px 0 0', lineHeight: '1.4' }}>{h.evidence}</p>
+                  </div>
                 </div>
+                {h.expected_impact && (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', flex: '1 1 200px' }}>
+                    <TrendingUp size={12} color="rgba(29,185,84,0.8)" style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <div>
+                      <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subdued)', textTransform: 'uppercase' }}>Expected Impact</span>
+                      <p style={{ fontSize: '11px', color: 'var(--text-subdued)', margin: '2px 0 0', lineHeight: '1.4' }}>{h.expected_impact}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', flex: '1 1 200px' }}>
+              {h.solution && (
+                <div style={{
+                  display: 'flex', alignItems: 'flex-start', gap: '6px',
+                  padding: '10px 12px', borderRadius: '6px',
+                  backgroundColor: 'rgba(29,185,84,0.05)', border: '1px solid rgba(29,185,84,0.15)',
+                }}>
+                  <Wrench size={12} color="var(--spotify-green)" style={{ marginTop: '2px', flexShrink: 0 }} />
+                  <div>
+                    <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--spotify-green)', textTransform: 'uppercase' }}>Recommended Solution</span>
+                    <p style={{ fontSize: '12px', color: 'var(--text-base)', margin: '2px 0 0', lineHeight: '1.5' }}>{h.solution}</p>
+                  </div>
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
                 <TestTube size={12} color="#f1c40f" style={{ marginTop: '2px', flexShrink: 0 }} />
                 <div>
-                  <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subdued)', textTransform: 'uppercase' }}>Recommended Test</span>
+                  <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subdued)', textTransform: 'uppercase' }}>Experiment Design</span>
                   <p style={{ fontSize: '11px', color: 'var(--text-subdued)', margin: '2px 0 0', lineHeight: '1.4' }}>{h.recommended_test}</p>
                 </div>
               </div>

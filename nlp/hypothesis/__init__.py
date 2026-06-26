@@ -109,26 +109,34 @@ ISSUE CLUSTERS:
             client = _llm.get_client()
 
             prompt = f"""You are a senior product analyst for Spotify India.
-You have been given the full review intelligence report below. Generate exactly 5 testable product hypotheses.
+You have been given the full review intelligence report below. Generate exactly 5 actionable product hypotheses — one per topic.
 
 Rules:
 - Each hypothesis must reference a SPECIFIC topic from the Topic Distribution (use exact topic names)
-- Each evidence field must cite a SPECIFIC number from the report (e.g. "38 reviews, 76% negative")
+- Each evidence field must cite SPECIFIC numbers from the report (e.g. "38 reviews, 76% negative, trending upward")
+- The solution must be a concrete, implementable product or engineering fix — NOT vague advice like "improve UX"
+- The expected_impact must name a specific metric and a realistic improvement range (e.g. "reduce Ads negative sentiment from 76% to ~45%; estimated 10-15% improvement in free-tier 30-day retention")
+- The recommended_test must be a proper experiment design: what to build, who to expose it to, how long to run, and what metric declares success
 - Do not invent data not present in the report
-- If priority issues are unavailable, base hypotheses on the topic distribution and review excerpts
-- The 5 hypotheses should cover 5 DIFFERENT topics — do not repeat the same topic twice
+- The 5 hypotheses must cover 5 DIFFERENT topics — do not repeat the same topic twice
 
 {context}
 
-Return ONLY a JSON array of exactly 5 objects with these keys:
-  hypothesis, evidence, recommended_test, confidence (High/Medium/Low), topic
+Return ONLY a JSON array of exactly 5 objects with these exact keys:
+  hypothesis        — one sentence stating what you believe is the core problem and why it matters
+  evidence          — specific numbers from the report supporting this hypothesis
+  solution          — concrete product/engineering fix to implement immediately
+  expected_impact   — which metric will improve and by how much (qualitative range is fine)
+  recommended_test  — proper A/B or staged rollout experiment design with explicit success criteria
+  confidence        — High / Medium / Low
+  topic             — exact topic id from the Topic Distribution
 
 No markdown, no explanation — only the JSON array."""
 
             chat_completion = client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
                 model=_llm.model(),
-                max_tokens=1800,
+                max_tokens=2500,
                 temperature=0.3,
             )
 
