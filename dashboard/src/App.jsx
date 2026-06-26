@@ -221,14 +221,14 @@ export default function App() {
                 prevStage = prog.stage;
                 if (prog.status === 'completed') {
                   clearInterval(pollInterval);
-                  // Auto-switch to live mode so stats immediately reflect the new scrape.
-                  // Backend already set _DATA_MODE="live" when the pipeline finished.
                   localStorage.setItem('dataMode', 'live');
                   setDataMode('live');
-                  handleRefresh();
+                  // Clear the bar first, then refresh so the new data appears
+                  // at the same moment the bar disappears (not before).
                   setTimeout(() => {
                     setIsScraping(false);
                     setScrapeProgress({ status: 'idle', stage: '', current: 0, total: 0, message: '' });
+                    handleRefresh();
                   }, 2000);
                 } else if (prog.status === 'error') {
                   clearInterval(pollInterval);
