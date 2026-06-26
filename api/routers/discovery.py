@@ -45,25 +45,36 @@ def run_background_scraping_task(limit: int):
         import aggregation.discovery_stats as _ds
         _ds.invalidate_llm_caches()
         _ds.set_data_mode("live")
-        _update_progress("done", limit, limit,
-                         "Reviews scraped! Topic analysis is running in the background...",
-                         status="completed")
 
-        # NLP runs in a background thread so the scrape progress bar can close and
-        # the dashboard auto-refreshes immediately. Topic widgets show a live progress
-        # bar via /nlp-progress while NLP is still processing.
+        # Stage 1 done — dashboard can now refresh with VADER data.
+        # Keep status="nlp_running" so the progress bar stays visible.
+        # Stage 2 (NLP) runs in a background thread and feeds its progress
+        # back into _scrape_progress. The bar only closes once NLP finishes.
+        _update_progress("nlp", 0, limit,
+                         "Reviews scraped! Running topic analysis…",
+                         status="nlp_running")
+
         def _nlp_thread():
             try:
                 def _cb(current, total):
                     discovery_stats.set_nlp_progress(current, total, "running")
+                    msg = f"Topic analysis: {current}/{total} reviews processed" if total else "Topic analysis running…"
+                    _update_progress("nlp", current, total, msg, status="nlp_running")
+
                 discovery_stats.set_nlp_progress(0, 0, "running")
                 run_nlp_pipeline(limit=limit * 2, progress_callback=_cb)
                 discovery_stats.set_nlp_progress(0, 0, "done")
                 _ds.invalidate_llm_caches()
+                _update_progress("done", limit, limit,
+                                 f"All done! {limit} reviews scraped and topics analyzed.",
+                                 status="completed")
                 print("Background NLP complete.")
             except Exception as e:
                 print(f"Background NLP failed (non-fatal, VADER data still in DB): {e}")
                 discovery_stats.set_nlp_progress(0, 0, "done")
+                _update_progress("done", limit, limit,
+                                 f"{limit} reviews scraped. Topic analysis incomplete — VADER data saved.",
+                                 status="completed")
 
         import threading
         threading.Thread(target=_nlp_thread, daemon=True).start()

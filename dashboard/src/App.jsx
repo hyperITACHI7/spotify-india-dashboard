@@ -511,8 +511,9 @@ export default function App() {
           </div>
         </header>
 
-        {/* Scrape progress bar */}
-        {isScraping && scrapeProgress.status === 'running' && (() => {
+        {/* Scrape progress bar — shows during ingestion AND background NLP */}
+        {isScraping && (scrapeProgress.status === 'running' || scrapeProgress.status === 'nlp_running') && (() => {
+          const isNlp = scrapeProgress.status === 'nlp_running';
           const pct = scrapeProgress.total > 0
             ? Math.min(100, Math.round((scrapeProgress.current / scrapeProgress.total) * 100))
             : 0;
@@ -525,18 +526,29 @@ export default function App() {
               scrapeProgress.message.includes('Storing')     ? 'Storing Reviews'     :
               'Ingesting Reviews'
             ) :
-            scrapeProgress.stage === 'nlp' ? 'Deep AI Analysis' : 'Processing';
+            scrapeProgress.stage === 'nlp' ? 'Topic Analysis' : 'Processing';
+
+          // During NLP the bar shows a pulsing indeterminate style when no progress yet
+          const barStyle = isNlp && pct === 0
+            ? { width: '40%', height: '100%', background: 'var(--spotify-green)', borderRadius: '5px', animation: 'pulse 1.5s ease-in-out infinite' }
+            : { width: `${pct}%`, height: '100%', background: 'var(--spotify-green)', borderRadius: '5px', transition: 'width 0.5s ease-out' };
+
           return (
             <div style={{ marginBottom: '20px', padding: '16px 20px', borderRadius: '12px', backgroundColor: 'rgba(29, 185, 84, 0.06)', border: '1px solid rgba(29, 185, 84, 0.2)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <RefreshCw size={14} className="spin" style={{ color: 'var(--spotify-green)' }} />
                   <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--spotify-green)' }}>{stageLabel}</span>
+                  {isNlp && (
+                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '500px', backgroundColor: 'rgba(29,185,84,0.15)', color: 'var(--spotify-green)' }}>
+                      Reviews ready — explore below ↓
+                    </span>
+                  )}
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-base)' }}>{pct}%</span>
+                {pct > 0 && <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-base)' }}>{pct}%</span>}
               </div>
               <div style={{ width: '100%', height: '10px', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '5px', overflow: 'hidden' }}>
-                <div style={{ width: `${pct}%`, height: '100%', background: 'var(--spotify-green)', borderRadius: '5px', transition: 'width 0.5s ease-out' }} />
+                <div style={barStyle} />
               </div>
               <p style={{ fontSize: '11px', color: 'var(--text-subdued)', margin: 0 }}>{scrapeProgress.message}</p>
             </div>
@@ -548,7 +560,7 @@ export default function App() {
           <div style={{ marginBottom: '20px', padding: '12px 20px', borderRadius: '12px', backgroundColor: 'rgba(29, 185, 84, 0.1)', border: '1px solid rgba(29, 185, 84, 0.25)', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '16px' }}>&#x2705;</span>
             <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--spotify-green)' }}>
-              Scrape complete! {scrapeProgress.total} reviews fetched and analyzed. Dashboard is refreshing...
+              {scrapeProgress.message || `Scrape complete! ${scrapeProgress.total} reviews fetched and analyzed.`}
             </span>
           </div>
         )}
