@@ -66,7 +66,7 @@ export default function OverviewKpis({ stats }) {
           <TrendingDown size={20} color="#e74c3c" />
         </div>
         <p className="kpi-value" style={{ color: '#e74c3c' }}>{neg_this_month}</p>
-        <span className="kpi-subtext">Flagged for discovery issues</span>
+        <span className="kpi-subtext">Negative reviews this month</span>
       </div>
     </div>
   );

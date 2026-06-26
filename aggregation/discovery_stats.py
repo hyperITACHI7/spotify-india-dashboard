@@ -908,7 +908,8 @@ def get_stats_aggregated(date_range: str, version: str, rating: str, platform: s
         
     avg_score = sum(r["score"] for r in filtered) / total
     avg_rating = sum(r["rating"] for r in filtered) / total
-    neg_this_month = sum(1 for r in filtered if r["sentiment"] == "NEGATIVE" and r["date"].startswith("2026-06"))
+    current_month = datetime.now().strftime("%Y-%m")
+    neg_this_month = sum(1 for r in filtered if r["sentiment"] == "NEGATIVE" and r["date"].startswith(current_month))
 
     dist = {"POSITIVE": 0, "NEUTRAL": 0, "NEGATIVE": 0}
     source_counts: Dict[str, int] = {}
